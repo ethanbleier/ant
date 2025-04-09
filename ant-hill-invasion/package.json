@@ -1,0 +1,21 @@
+{
+  "name": "ant-hill-invasion",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/three": "^0.175.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.2.5"
+  },
+  "dependencies": {
+    "matter-js": "^0.20.0",
+    "pathfinding": "^0.4.18",
+    "three": "^0.175.0"
+  }
+}

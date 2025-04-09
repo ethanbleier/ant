@@ -1,0 +1,28 @@
+/* Reset some default browser styles */
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrollbars */
+  background-color: #222; /* Dark background */
+  font-family: 'Press Start 2P', cursive; /* Pixel font */
+  color: #fff; /* White text */
+}
+
+canvas {
+  display: block; /* Remove extra space below canvas */
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  font-size: 2em; /* Larger title */
+  margin-bottom: 20px;
+  text-shadow: 2px 2px #000; /* Simple text shadow */
+}
+
+/* Add a Google Font for the pixel style */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap'); 
