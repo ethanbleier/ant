@@ -33,16 +33,30 @@ export class MenuScene {
         canvas.addEventListener('click', this.onClick);
         canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
         
-        // Create button for starting the game
-        const buttonWidth = 200;
+        // Create buttons
+        const buttonWidth = 240;
         const buttonHeight = 60;
+        const buttonSpacing = 20;
+        
+        // Tower defense button
         this.buttons.push({
             x: (this.width - buttonWidth) / 2,
             y: this.height / 2 + 20,
             width: buttonWidth,
             height: buttonHeight,
-            text: 'START GAME',
-            action: 'start',
+            text: 'TOWER DEFENSE',
+            action: 'tower-defense',
+            hovered: false
+        });
+        
+        // Free play button
+        this.buttons.push({
+            x: (this.width - buttonWidth) / 2,
+            y: this.height / 2 + 20 + buttonHeight + buttonSpacing,
+            width: buttonWidth,
+            height: buttonHeight,
+            text: 'FREE PLAY',
+            action: 'free-play',
             hovered: false
         });
     }
@@ -55,13 +69,6 @@ export class MenuScene {
         this.titleBounce += 0.1 * this.titleBounceDir;
         if (this.titleBounce > 5 || this.titleBounce < 0) {
             this.titleBounceDir *= -1;
-        }
-        
-        // Title blinking effect
-        this.titleBlinkTimer++;
-        if (this.titleBlinkTimer > 60) {
-            this.titleBlinkTimer = 0;
-            this.titleVisible = !this.titleVisible;
         }
         
         // Update button hover state
@@ -128,10 +135,15 @@ export class MenuScene {
             
             ctx.fillStyle = gradient;
             ctx.fillText('ANT HILL INVASION', this.width / 2, this.height / 4 + this.titleBounce);
+            
+            // Add subtitle
+            ctx.font = 'bold 20px "Press Start 2P", monospace, Arial';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillText('DEFEND YOUR COLONY', this.width / 2, this.height / 4 + 60);
         }
         
         // Draw 8-bit ant icon
-        this.drawPixelArt(ctx, this.width / 2 - 50, this.height / 2 - 80, 100, 100);
+        this.drawPixelArt(ctx, this.width / 2 - 50, this.height / 2 - 100, 100, 100);
         
         // Draw buttons
         for (const button of this.buttons) {
@@ -150,12 +162,19 @@ export class MenuScene {
             ctx.strokeRect(button.x + 4, button.y + 4, button.width - 8, button.height - 8);
             
             // Button text
-            ctx.font = 'bold 20px "Press Start 2P", monospace, Arial';
+            ctx.font = 'bold 16px "Press Start 2P", monospace, Arial';
             ctx.fillStyle = '#FFFFFF';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(button.text, button.x + button.width / 2, button.y + button.height / 2);
         }
+        
+        // Draw game version
+        ctx.font = '10px "Press Start 2P", monospace, Arial';
+        ctx.fillStyle = '#666666';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('Ver 1.0.0', this.width - 10, this.height - 10);
     }
     
     /**
@@ -224,8 +243,10 @@ export class MenuScene {
                 mouseY >= button.y && 
                 mouseY <= button.y + button.height) {
                 
-                if (button.action === 'start') {
-                    this.startGame();
+                if (button.action === 'tower-defense') {
+                    this.startTowerDefenseGame();
+                } else if (button.action === 'free-play') {
+                    this.startFreePlayGame();
                 }
             }
         }
@@ -239,20 +260,34 @@ export class MenuScene {
         this.height = height;
         
         // Reposition buttons
-        const buttonWidth = 200;
+        const buttonWidth = 240;
         const buttonHeight = 60;
+        const buttonSpacing = 20;
         
-        if (this.buttons.length > 0) {
+        if (this.buttons.length >= 2) {
             this.buttons[0].x = (width - buttonWidth) / 2;
             this.buttons[0].y = height / 2 + 20;
+            
+            this.buttons[1].x = (width - buttonWidth) / 2;
+            this.buttons[1].y = height / 2 + 20 + buttonHeight + buttonSpacing;
         }
     }
 
     /**
-     * Start the game
+     * Start the tower defense game
      */
-    startGame() {
+    startTowerDefenseGame() {
         const gameScene = new GameScene();
+        gameScene.gameMode = 'tower-defense';
+        setCurrentScene(gameScene);
+    }
+    
+    /**
+     * Start the free play game mode
+     */
+    startFreePlayGame() {
+        const gameScene = new GameScene();
+        gameScene.gameMode = 'free-play';
         setCurrentScene(gameScene);
     }
 
