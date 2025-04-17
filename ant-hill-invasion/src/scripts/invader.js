@@ -23,7 +23,7 @@ export class Invader {
         EventBus.addEventListener('invaderHalfHealth', (e) => {
             if (e.detail.id === this.id) {
                 this.state = 'panic';
-                console.log("joe mama: "+ this.id+" "+this.state);
+                // console.log("joe mama: "+ this.id+" "+this.state);
             }
         });
 
@@ -48,7 +48,7 @@ export class Invader {
                 this.speed = 1;
                 break;
             case 'panic':
-                this.speed = 2.5;
+                this.speed = 1.5;
                 break;
             case 'dead':
                 //oof

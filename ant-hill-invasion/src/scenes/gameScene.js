@@ -3,6 +3,7 @@ import { getImage } from '../core/resources.js';
 import { Invader } from '../scripts/invader.js';
 import { Map } from '../components/game/Map.js';
 import { EventBus } from '../scripts/eventBus.js';
+import { InvaderVar2 } from '../scripts/invaderVar2.js';
 
 
 export class GameScene {
@@ -229,8 +230,23 @@ export class GameScene {
      * Create a new enemy
      */
     createEnemy() {
+        //check wave- 
         const startPoint = this.path[0];
-        const invader = new Invader(startPoint.x, startPoint.y, this.cellSize, this.path);
+        let invader;
+        if(this.wave>=3)
+        {
+            const rand = Math.floor(Math.random() * 3) + 1;
+            if(rand==3){
+                invader = new InvaderVar2(startPoint.x, startPoint.y, this.cellSize, this.path);
+            }
+            else{
+                invader = new Invader(startPoint.x, startPoint.y, this.cellSize, this.path);
+            }
+        }
+        else
+        {
+            invader = new Invader(startPoint.x, startPoint.y, this.cellSize, this.path);
+        }
         this.enemies.push(invader);
         
 
