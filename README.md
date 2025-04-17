@@ -27,12 +27,6 @@ A retro-styled tower defense game where you defend your ant colony from invading
 - Manage resources and upgrade your defenses  
 - Complete increasingly difficult waves  
 
-### 🐜 Free Play Mode
-
-- Explore the ant colony environment  
-- Control your ant character with arrow keys  
-- Interact with the environment  
-
 ---
 
 ## 🧠 How to Play
