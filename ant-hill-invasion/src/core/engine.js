@@ -47,11 +47,16 @@ export function setCurrentScene(newScene) {
         currentScene.cleanup();
     }
     
-    // Set and initialize new scene
+    // Set the new scene (Initialization should happen BEFORE this call)
     currentScene = newScene;
-    if (currentScene && currentScene.initialize) {
-        currentScene.initialize(canvas, ctx);
-    }
+}
+
+/**
+ * Get the current game scene
+ * @returns {object|null} The current scene object or null
+ */
+export function getCurrentScene() {
+    return currentScene;
 }
 
 /**

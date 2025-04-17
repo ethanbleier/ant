@@ -41,22 +41,11 @@ export class MenuScene {
         // Tower defense button
         this.buttons.push({
             x: (this.width - buttonWidth) / 2,
-            y: this.height / 2 + 20,
+            y: this.height / 2 + 50,
             width: buttonWidth,
             height: buttonHeight,
             text: 'TOWER DEFENSE',
             action: 'tower-defense',
-            hovered: false
-        });
-        
-        // Free play button
-        this.buttons.push({
-            x: (this.width - buttonWidth) / 2,
-            y: this.height / 2 + 20 + buttonHeight + buttonSpacing,
-            width: buttonWidth,
-            height: buttonHeight,
-            text: 'FREE PLAY',
-            action: 'free-play',
             hovered: false
         });
     }
@@ -245,8 +234,6 @@ export class MenuScene {
                 
                 if (button.action === 'tower-defense') {
                     this.startTowerDefenseGame();
-                } else if (button.action === 'free-play') {
-                    this.startFreePlayGame();
                 }
             }
         }
@@ -264,39 +251,50 @@ export class MenuScene {
         const buttonHeight = 60;
         const buttonSpacing = 20;
         
-        if (this.buttons.length >= 2) {
+        if (this.buttons.length >= 1) {
             this.buttons[0].x = (width - buttonWidth) / 2;
-            this.buttons[0].y = height / 2 + 20;
-            
-            this.buttons[1].x = (width - buttonWidth) / 2;
-            this.buttons[1].y = height / 2 + 20 + buttonHeight + buttonSpacing;
+            this.buttons[0].y = height / 2 + 50;
         }
     }
 
     /**
      * Start the tower defense game
      */
-    startTowerDefenseGame() {
+    async startTowerDefenseGame() {
+        console.log("Starting Tower Defense...");
+        this.cleanup(); // Clean up menu listeners before switching
+
         const gameScene = new GameScene();
-        gameScene.gameMode = 'tower-defense';
-        setCurrentScene(gameScene);
-    }
-    
-    /**
-     * Start the free play game mode
-     */
-    startFreePlayGame() {
-        const gameScene = new GameScene();
-        gameScene.gameMode = 'free-play';
-        setCurrentScene(gameScene);
+        gameScene.gameMode = 'tower-defense'; // Set game mode if still needed
+        
+        // Get canvas and context from the current state (engine could provide this)
+        const canvas = this.canvas; 
+        const ctx = this.ctx;
+
+        try {
+            // Initialize the game scene asynchronously with the level ID
+            await gameScene.initialize(canvas, ctx, "level1"); // Pass levelId="level1"
+            // If initialization succeeds, set it as the current scene
+            setCurrentScene(gameScene);
+        } catch (error) {
+            console.error("Failed to start Tower Defense game:", error);
+            // Handle the error, maybe go back to menu or show an error message
+            // For now, just log it. Consider re-initializing the menu scene:
+            // this.initialize(canvas, ctx); // Re-add listeners etc.
+        }
     }
 
     /**
      * Clean up scene resources
      */
     cleanup() {
-        // Remove event listeners
-        this.canvas.removeEventListener('click', this.onClick);
-        this.canvas.removeEventListener('mousemove', this.onMouseMove);
+        console.log("Cleaning up MenuScene...");
+        // Remove event listeners if canvas exists
+        if (this.canvas) {
+            this.canvas.removeEventListener('click', this.onClick);
+            this.canvas.removeEventListener('mousemove', this.onMouseMove.bind(this)); // Ensure correct removal if bound differently
+        } else {
+            console.warn("Canvas not available during MenuScene cleanup.");
+        }
     }
 }
