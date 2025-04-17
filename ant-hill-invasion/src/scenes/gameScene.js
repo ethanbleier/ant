@@ -1,5 +1,9 @@
 import { isKeyDown } from '../core/input.js';
 import { getImage } from '../core/resources.js';
+import { Invader } from '../scripts/invader.js';
+import { Map } from '../components/game/Map.js';
+import { EventBus } from '../scripts/eventBus.js';
+
 
 export class GameScene {
     constructor() {
@@ -55,6 +59,10 @@ export class GameScene {
         this.handleMouseDown = this.handleMouseDown.bind(this);
         this.handleMouseMove = this.handleMouseMove.bind(this);
         this.handleMouseUp = this.handleMouseUp.bind(this);
+
+        //map.js stuff?
+        this.showMap = false;
+        
     }
 
     /**
@@ -80,6 +88,13 @@ export class GameScene {
      * Initialize tower defense mode
      */
     initializeTowerDefense() {
+        //cheeseFood
+        if(this.showMap){
+            this.map = new Map(20, 12, 32); // width, height, cellSize
+            this.map.loadMap(1); // load level 1
+        }
+     
+
         // Create the path
         this.createPath();
 
@@ -137,30 +152,30 @@ export class GameScene {
         const mapHeight = this.height - this.shopHeight;
         const horizontalSegments = 5;
         const verticalSegments = 3;
-    
+
         // Start point (entrance)
         const startX = 0;
         const startY = Math.floor(mapHeight / 6);
-    
+
         // Create a zigzag path
         this.path = [];
-    
-        // Snap helper function
+
+        // method to snap coord to grid
         const snap = (x, y) => ({
             x: Math.floor(x / this.cellSize) * this.cellSize,
             y: Math.floor(y / this.cellSize) * this.cellSize
         });
-    
+
         // First point (entrance)
         this.path.push(snap(startX, startY));
-    
+
         // Create zigzag segments
         for (let i = 1; i <= verticalSegments; i++) {
             // Right point
             const rightX = this.width - this.cellSize;
             const rightY = startY + ((i - 1) * Math.floor(mapHeight / 3));
             this.path.push(snap(rightX, rightY));
-    
+
             // Connecting point (if not the last segment)
             if (i < verticalSegments) {
                 const leftX = this.cellSize;
@@ -168,13 +183,13 @@ export class GameScene {
                 this.path.push(snap(leftX, leftY));
             }
         }
-    
+
         // Last point (anthill entrance - exit for enemies)
         const finalX = this.width / 2;
         const finalY = mapHeight - this.cellSize;
         this.path.push(snap(finalX, finalY));
-    
-        // ✅ Print all grid coordinates (in cell units) - cheeseFood
+
+        //  cheeseFood
         console.log("Path Cell Coordinates:");
         for (const point of this.path) {
             const col = Math.floor(point.x / this.cellSize);
@@ -182,7 +197,7 @@ export class GameScene {
             console.log(`Cell [${col}, ${row}]`);
         }
     }
-    
+
 
     /**
      * Set up a wave of enemies
@@ -215,22 +230,11 @@ export class GameScene {
      */
     createEnemy() {
         const startPoint = this.path[0];
+        const invader = new Invader(startPoint.x, startPoint.y, this.cellSize, this.path);
+        this.enemies.push(invader);
+        
 
-        // Create an enemy at the start of the path
-        const enemy = {
-            x: startPoint.x - this.cellSize, // Start just off-screen
-            y: startPoint.y,
-            width: this.cellSize,
-            height: this.cellSize,
-            health: 100,
-            maxHealth: 100,
-            speed: 1,
-            pathIndex: 0,
-            color: '#FF4500', // Fire ant color (red-orange)
-            reward: 10
-        };
-
-        this.enemies.push(enemy);
+        // this.enemies.push(enemy);
     }
 
     /**
@@ -452,31 +456,18 @@ export class GameScene {
      */
     updateEnemies() {
         for (let i = this.enemies.length - 1; i >= 0; i--) {
-            const enemy = this.enemies[i];
-
-            // Move enemy along path
-            this.moveEnemyAlongPath(enemy);
-
-            // Check if enemy reached the end
-            if (enemy.pathIndex >= this.path.length - 1) {
-                // Enemy reached the anthill
+            const invader = this.enemies[i];
+            invader.update();
+        
+            if (invader.pathIndex >= invader.waypoints.length - 1) {
                 this.lives--;
                 this.enemies.splice(i, 1);
-
-                // Check game over
-                if (this.lives <= 0) {
-                    console.log("Game Over!");
-                    // TODO: Handle game over
-                }
-            }
-
-            // Check if enemy died
-            else if (enemy.health <= 0) {
-                // Give reward
-                this.money += enemy.reward;
+            } else if (invader.health <= 0) {
+                this.money += invader.reward;
                 this.enemies.splice(i, 1);
             }
         }
+        
     }
 
     /**
@@ -576,6 +567,15 @@ export class GameScene {
      */
     attackEnemy(defender, enemy) {
         enemy.health -= defender.damage;
+        
+        if(enemy.health<= enemy.maxHealth/2 && !enemy.invaderinvaderHasHalfHp){
+            enemy.invaderinvaderHasHalfHp=true;
+            
+            EventBus.dispatchEvent(new CustomEvent('invaderHalfHealth', {
+                detail: { id: enemy.id }
+            }));
+            
+        }
     }
 
     /**
@@ -657,26 +657,31 @@ export class GameScene {
         //cheeseFood
 
         // Draw a red cell at grid coordinate [15, 15]
-        if(true){
+        if (false) {
             const redCellX = 3 * this.cellSize;
             const redCellY = 17 * this.cellSize;
-    
+
             ctx.fillStyle = 'red';
             ctx.fillRect(redCellX, redCellY, this.cellSize, this.cellSize);
             ctx.fillStyle = 'magenta'; // Optional: make it stand out
-    
+
             for (let i = 0; i < this.path.length; i++) {
                 const point = this.path[i];
-            
+
                 const col = Math.floor(point.x / this.cellSize);
                 const row = Math.floor(point.y / this.cellSize);
-            
+
                 const cellX = col * this.cellSize;
                 const cellY = row * this.cellSize;
-            
+
                 ctx.fillRect(cellX, cellY, this.cellSize, this.cellSize);
             }
         }
+        if(this.showMap){
+            this.map.render(ctx);
+        }
+        
+
 
         // Draw grid
         this.drawGrid(ctx);
@@ -843,12 +848,12 @@ export class GameScene {
         ctx.fillStyle = '#000000'; // Black text
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
-    
+
         for (let x = 0; x < this.width; x += this.cellSize) {
             for (let y = 0; y < this.height - this.shopHeight; y += this.cellSize) {
                 // Draw grid border
                 ctx.strokeRect(x, y, this.cellSize, this.cellSize);
-    
+
                 // Draw grid coordinate label
                 const col = Math.floor(x / this.cellSize);
                 const row = Math.floor(y / this.cellSize);
@@ -856,7 +861,7 @@ export class GameScene {
             }
         }
     }
-    
+
 
     /**
      * Draw the path
