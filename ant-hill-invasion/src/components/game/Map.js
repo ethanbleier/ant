@@ -26,7 +26,7 @@ export class Map {
             path: { id: 0, color: '#964B00' },     // Brown path
             buildable: { id: 1, color: '#7CFC00' }, // Lawn green
             obstacle: { id: 2, color: '#556B2F' },  // Dark olive green
-            anthill: { id: 3, color: '#8B4513' }    // Saddle brown
+            anthill: { id: 3, color: '#8B4513' }    // Saddle brown - anthill rendering handled by MapRenderingSystem
         };
         
         // Initialize the grid with empty cells
@@ -331,15 +331,21 @@ export class Map {
     /**
      * Render the map
      * @param {CanvasRenderingContext2D} ctx - The canvas context
+     * @param {number} baseHealth - Current base health (unused, kept for potential future use/API consistency)
+     * @param {number} maxBaseHealth - Maximum base health (unused, kept for potential future use/API consistency)
      */
-    render(ctx) {
+    render(ctx, baseHealth, maxBaseHealth) {
         // Render each grid cell
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
                 const cellType = this.grid[y][x];
                 
+                // NOTE: Anthill (queen ant) is drawn by MapRenderingSystem
+                // We still draw the underlying tile for path/buildable areas where the anthill *might* be
+                // Or just draw all tiles normally and let MapRenderingSystem draw over the anthill tile.
+
                 // Get the color for this cell type
-                let color = '#000000';
+                let color = '#000000'; // Default black
                 for (const tileType in this.tiles) {
                     if (this.tiles[tileType].id === cellType) {
                         color = this.tiles[tileType].color;

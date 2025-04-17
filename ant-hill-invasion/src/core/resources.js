@@ -1,6 +1,7 @@
 // Resource storage
 const images = {};
 const sounds = {};
+let defaultImage = null; // Module-level variable for the default image object
 
 // Loading tracking
 let resourcesLoaded = 0;
@@ -43,10 +44,12 @@ export function loadResources() {
  */
 function loadImages(onResourceLoaded) {
     const imagesToLoad = [
-        // Define game images here
-        // { name: 'dirt', url: '/images/dirt.png' },
-        // { name: 'grass', url: '/images/grass.png' },
-        // { name: 'enemy1', url: '/images/enemy1.png' },
+        // Define game images here - Adjust URLs to match your project!
+        { name: 'defenderSprite', url: '/assets/models/defender_ant.png' }, 
+        { name: 'fireAntSprite', url: '/assets/models/fire_ant.png' },     
+        { name: 'leafCutterAntSprite', url: '/assets/models/leafcutter_ant.png' },
+        { name: 'queenAntSprite', url: '/assets/models/queen_ant.png' }, // Placeholder for Queen
+        // Add other necessary images
     ];
     
     // Update total resource count
@@ -77,22 +80,26 @@ function loadImages(onResourceLoaded) {
 function createDefaultImage() {
     // Create a default image using canvas
     const canvas = document.createElement('canvas');
-    canvas.width = 64;
-    canvas.height = 64;
+    canvas.width = 32; // Smaller default texture is fine
+    canvas.height = 32;
     const context = canvas.getContext('2d');
     
     // Draw checkerboard pattern
     context.fillStyle = '#555555';
-    context.fillRect(0, 0, 64, 64);
-    context.fillStyle = '#FF00FF'; // Magenta for missing textures
     context.fillRect(0, 0, 32, 32);
-    context.fillRect(32, 32, 32, 32);
+    context.fillStyle = '#FF00FF'; // Magenta for missing textures
+    context.fillRect(0, 0, 16, 16);
+    context.fillRect(16, 16, 16, 16);
     
     // Convert to image
-    const defaultImg = new Image();
-    defaultImg.src = canvas.toDataURL();
-    images.defaultImage = defaultImg;
+    const img = new Image(); // Use local temporary name
+    img.src = canvas.toDataURL();
+    images.defaultImage = img; // Assign for internal getImage use
+    defaultImage = img; // Assign to the module-level variable for export
 }
+
+// Export loaded images map and the default image object
+export { images as loadedImages, defaultImage };
 
 /**
  * Get a loaded image by name
