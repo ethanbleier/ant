@@ -369,13 +369,13 @@ export class Map {
         }
         
         // Optionally, render the waypoints for debugging
-        /*
+        
         ctx.fillStyle = '#FF0000';
         for (const waypoint of this.waypoints) {
             ctx.beginPath();
             ctx.arc(waypoint.x, waypoint.y, 5, 0, Math.PI * 2);
             ctx.fill();
         }
-        */
+        
     }
 } 
