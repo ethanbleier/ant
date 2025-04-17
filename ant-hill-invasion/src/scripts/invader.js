@@ -30,7 +30,7 @@ export class Invader {
     }
 
     update() {
-        if (this.pathIndex >= this.waypoints.length - 1) return;
+        if (this.pathIndex >= this.waypoints.length) return;
 
         const target = this.waypoints[this.pathIndex];
         const dx = target.x - this.x;

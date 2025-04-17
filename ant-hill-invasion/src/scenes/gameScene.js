@@ -63,7 +63,9 @@ export class GameScene {
 
         //map.js stuff?
         this.showMap = false;
-        
+        this.showCoords = true;
+
+
     }
 
     /**
@@ -90,11 +92,11 @@ export class GameScene {
      */
     initializeTowerDefense() {
         //cheeseFood
-        if(this.showMap){
+        if (this.showMap) {
             this.map = new Map(20, 12, 32); // width, height, cellSize
             this.map.loadMap(1); // load level 1
         }
-     
+
 
         // Create the path
         this.createPath();
@@ -190,13 +192,13 @@ export class GameScene {
         const finalY = mapHeight - this.cellSize;
         this.path.push(snap(finalX, finalY));
 
-        //  cheeseFood
-        console.log("Path Cell Coordinates:");
-        for (const point of this.path) {
-            const col = Math.floor(point.x / this.cellSize);
-            const row = Math.floor(point.y / this.cellSize);
-            console.log(`Cell [${col}, ${row}]`);
-        }
+                //  cheeseFood
+                console.log("Path Cell Coordinates:");
+                for (const point of this.path) {
+                    const col = Math.floor(point.x / this.cellSize);
+                    const row = Math.floor(point.y / this.cellSize);
+                    console.log(`Cell [${col}, ${row}]`);
+                }
     }
 
 
@@ -233,22 +235,20 @@ export class GameScene {
         //check wave- 
         const startPoint = this.path[0];
         let invader;
-        if(this.wave>=3)
-        {
+        if (this.wave >= 3) {
             const rand = Math.floor(Math.random() * 3) + 1;
-            if(rand==3){
+            if (rand == 3) {
                 invader = new InvaderVar2(startPoint.x, startPoint.y, this.cellSize, this.path);
             }
-            else{
+            else {
                 invader = new Invader(startPoint.x, startPoint.y, this.cellSize, this.path);
             }
         }
-        else
-        {
+        else {
             invader = new Invader(startPoint.x, startPoint.y, this.cellSize, this.path);
         }
         this.enemies.push(invader);
-        
+
 
         // this.enemies.push(enemy);
     }
@@ -474,8 +474,8 @@ export class GameScene {
         for (let i = this.enemies.length - 1; i >= 0; i--) {
             const invader = this.enemies[i];
             invader.update();
-        
-            if (invader.pathIndex >= invader.waypoints.length - 1) {
+
+            if (invader.pathIndex >= invader.waypoints.length ) {
                 this.lives--;
                 this.enemies.splice(i, 1);
             } else if (invader.health <= 0) {
@@ -483,7 +483,7 @@ export class GameScene {
                 this.enemies.splice(i, 1);
             }
         }
-        
+
     }
 
     /**
@@ -583,14 +583,14 @@ export class GameScene {
      */
     attackEnemy(defender, enemy) {
         enemy.health -= defender.damage;
-        
-        if(enemy.health<= enemy.maxHealth/2 && !enemy.invaderinvaderHasHalfHp){
-            enemy.invaderinvaderHasHalfHp=true;
-            
+
+        if (enemy.health <= enemy.maxHealth / 2 && !enemy.invaderinvaderHasHalfHp) {
+            enemy.invaderinvaderHasHalfHp = true;
+
             EventBus.dispatchEvent(new CustomEvent('invaderHalfHealth', {
                 detail: { id: enemy.id }
             }));
-            
+
         }
     }
 
@@ -693,10 +693,10 @@ export class GameScene {
                 ctx.fillRect(cellX, cellY, this.cellSize, this.cellSize);
             }
         }
-        if(this.showMap){
+        if (this.showMap) {
             this.map.render(ctx);
         }
-        
+
 
 
         // Draw grid
@@ -870,10 +870,13 @@ export class GameScene {
                 // Draw grid border
                 ctx.strokeRect(x, y, this.cellSize, this.cellSize);
 
-                // Draw grid coordinate label
-                const col = Math.floor(x / this.cellSize);
-                const row = Math.floor(y / this.cellSize);
-                ctx.fillText(`${col},${row}`, x + 2, y + 2);
+                if (this.showCoords) {
+                    // Draw grid coordinate label
+                    const col = Math.floor(x / this.cellSize);
+                    const row = Math.floor(y / this.cellSize);
+                    ctx.fillText(`${col},${row}`, x + 2, y + 2);
+                }
+
             }
         }
     }
