@@ -10,6 +10,7 @@ import { InputSystem } from '../ecs/systems/InputSystem.js';
 import { UISystem } from '../ecs/systems/UISystem.js';
 import { MapRenderingSystem } from '../ecs/systems/MapRenderingSystem.js';
 import { CollisionSystem } from '../ecs/systems/CollisionSystem.js';
+import { ProjectileSystem } from '../ecs/systems/ProjectileSystem.js';
 import { eventBus } from '../core/EventBus.js';
 import { loadLevelData } from '../core/levelLoader.js';
 
@@ -98,6 +99,7 @@ export class GameScene {
             new MovementSystem(this.entityManager),
             new CollisionSystem(this.entityManager),
             new CombatSystem(this.entityManager),
+            new ProjectileSystem(this.entityManager, this.ctx),
             gameStateSystem,    // Use instance
             mapRenderingSystem, // Use instance
             new RenderSystem(this.entityManager, this.ctx), 
