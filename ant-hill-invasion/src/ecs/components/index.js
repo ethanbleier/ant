@@ -8,4 +8,5 @@ export { PathFollower } from './PathFollower.js';
 export { Collider } from './Collider.js';
 export { Health } from './Health.js';
 export { Velocity } from './Velocity.js';
-export { Position } from './Position.js'; 
+export { Position } from './Position.js';
+export { Projectile } from './Projectile.js'; 
