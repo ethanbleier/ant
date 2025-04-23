@@ -273,7 +273,7 @@ export class MenuScene {
 
         try {
             // Initialize the game scene asynchronously with the level ID
-            await gameScene.initialize(canvas, ctx, "level5"); // Pass levelId="level1"
+            await gameScene.initialize(canvas, ctx, "level6"); // Pass levelId="level1"
             // If initialization succeeds, set it as the current scene
             setCurrentScene(gameScene);
         } catch (error) {
