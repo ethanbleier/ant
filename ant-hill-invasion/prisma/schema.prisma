@@ -1,0 +1,24 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiMzFiMjQyMzgtYjZiMS00NzJkLWFiZmEtYmUxMDAwMDg4MTg0IiwidGVuYW50X2lkIjoiYzk1OGI0YTUxOGYwZDdiM2VhNjIxYjBiYzUxYjg4YjgyZGVjNGRmMDg1OTRlMTA3ZTBkZjk0YTQxNzAzODE5ZCIsImludGVybmFsX3NlY3JldCI6ImYwNjIxYmU1LTljNDQtNGQ1Ni05ODMzLWM0ZGViNGNhN2EzMCJ9.JidDtxLUiHxHBEr8NcTSn1HPD65AGHix_B6W6wZw43U"")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  googleId  String?  @unique
+  saves     Save[]
+}
+
+model Save {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  data      Json
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+}
