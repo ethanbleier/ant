@@ -48,9 +48,9 @@ export class GameScene {
         this.isPaused = false; 
 
         this.shopItems = [
-            { type: 'worker', cost: 20, damage: 5, range: 100, speed: 1, color: '#3D2817' },
-            { type: 'soldier', cost: 50, damage: 15, range: 150, speed: 0.8, color: '#000000' },
-            { type: 'sniper', cost: 100, damage: 30, range: 250, speed: 0.5, color: '#654321' }
+            { type: 'worker', cost: 20, damage: 5, range: 100, speed: 2.0, color: '#3D2817' },
+            { type: 'soldier', cost: 50, damage: 25, range: 150, speed: 0.8, color: '#000000' },
+            { type: 'sniper', cost: 100, damage: 60, range: 250, speed: 0.5, color: '#654321' }
         ];
         
         this.shopHeight = 80;
