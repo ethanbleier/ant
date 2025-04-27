@@ -46,7 +46,7 @@ window.addEventListener('resize', handleResize);
 
 // Load the menu scene as the starting scene
 async function startGame() {
-  //await userData to load their saved language
+  //todo await userData to load their saved language
   await loadLanguage('en');  //english is default for now
 
   const menuScene = new MenuScene();

@@ -6,7 +6,12 @@
     "waves":"ondas",
     
     "defenders":"DEFENSORES",
-    "start": "COMENZAR"
+    "start": "COMENZAR",
+    "settings":"AJUSTES",
+    "settingsSubtitle":"ACCESIBILIDAD",
+    "save":"AHORRAR",
+    
+    "exit":"SALIDA"
     
     
 }

@@ -2,6 +2,7 @@ import { setCurrentScene } from '../core/engine.js';
 import { GameScene } from './gameScene.js';
 import { t, loadLanguage } from '../core/localization/localizationManager.js';
 import { TEXT_KEYS } from '../core/localization/TEXT_KEYS.js'; //consistency for languages 
+import { SettingsScene } from './settingsScene.js';
 
 
 export class MenuScene {
@@ -49,6 +50,16 @@ export class MenuScene {
             height: buttonHeight,
             text: t(TEXT_KEYS.TOWER_DEFENSE_BUTTON),
             action: 'tower-defense',
+            hovered: false
+        });
+        //settings button
+        this.buttons.push({
+            x: (this.width - buttonWidth) / 2,
+            y: (this.height / 2 + 50)+ buttonSpacing +buttonHeight,
+            width: buttonWidth,
+            height: buttonHeight,
+            text: t(TEXT_KEYS.SETTINGS),
+            action: 'settings',
             hovered: false
         });
     }
@@ -238,6 +249,9 @@ export class MenuScene {
                 if (button.action === 'tower-defense') {
                     this.startTowerDefenseGame();
                 }
+                if(button.action ==='settings'){
+                    this.openSettingsPage();
+                }
             }
         }
     }
@@ -284,6 +298,27 @@ export class MenuScene {
             // Handle the error, maybe go back to menu or show an error message
             // For now, just log it. Consider re-initializing the menu scene:
             // this.initialize(canvas, ctx); // Re-add listeners etc.
+        }
+    }
+    /**
+     * redirect to settings page
+     */
+    async openSettingsPage(){
+        console.log("Going to Settings Page...");
+        this.cleanup();
+
+        const settingsScene= new SettingsScene();
+        // no game mode
+
+        const canvas = this.canvas; 
+        const ctx = this.ctx;
+
+        try{
+            await settingsScene.initialize(canvas,ctx);
+            setCurrentScene(settingsScene)
+            
+        }catch(error){
+            console.error("Failed to open Settings Page: ",error);
         }
     }
 

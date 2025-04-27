@@ -4,7 +4,13 @@
     "play":"TOWER DEFENSE",
     "lives":"Lives",
     "waves":"Waves",
-    
+
     "defenders":"DEFENDERS",
-    "start":"START"
+    "start":"START",
+    "settings":"SETTINGS",
+    "settingsSubtitle":"ACCESSIBILITY?",
+    "save":"SAVE",
+    
+    "exit":"EXIT"
+
 }
