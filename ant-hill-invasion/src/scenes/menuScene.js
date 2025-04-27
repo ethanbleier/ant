@@ -315,7 +315,7 @@ export class MenuScene {
 
         try{
             await settingsScene.initialize(canvas,ctx);
-            setCurrentScene(settingsScene)
+            setCurrentScene(settingsScene);
             
         }catch(error){
             console.error("Failed to open Settings Page: ",error);

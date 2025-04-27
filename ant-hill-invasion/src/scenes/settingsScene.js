@@ -1,5 +1,7 @@
+import { setCurrentScene } from '../core/engine.js';
 import { t, loadLanguage } from '../core/localization/localizationManager.js';
 import { TEXT_KEYS } from '../core/localization/TEXT_KEYS.js'; //consistency for languages 
+import { MenuScene } from './menuScene.js';
 
 export class SettingsScene {
     constructor() {
@@ -338,13 +340,32 @@ export class SettingsScene {
                         break;
                     case 'exit':
                         console.log("Bye Bye");
-                        //leave to menuScene w/ saving
+                        //leave to menuScene w/out saving, but keep changes (thats how it works rn)
+                        this.openMenuScene();
                         break;
                     default:
                         // optional: handle unknown actions
                         break;
                 }
             }
+        }
+    }
+
+    async openMenuScene(){
+        console.log("Going to Menus Page...");
+        this.cleanup();
+
+        const menuScene = new MenuScene();
+        //no game mode
+
+        const canvas = this.canvas; 
+        const ctx = this.ctx;
+
+        try{
+            await menuScene.initialize(canvas,ctx);
+            setCurrentScene(menuScene);
+        }catch(error){
+            console.error("Failed to open Menu Page: ",error);
         }
     }
 
@@ -355,4 +376,17 @@ export class SettingsScene {
             }
         }
     }
+        /**
+     * Clean up scene resources
+     */
+        cleanup() {
+            console.log("Cleaning up MenuScene...");
+            // Remove event listeners if canvas exists
+            if (this.canvas) {
+                this.canvas.removeEventListener('click', this.onClick);
+                this.canvas.removeEventListener('mousemove', this.onMouseMove.bind(this)); // Ensure correct removal if bound differently
+            } else {
+                console.warn("Canvas not available during MenuScene cleanup.");
+            }
+        }
 }
