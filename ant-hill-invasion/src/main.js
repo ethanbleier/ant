@@ -2,6 +2,7 @@ import './style.css'
 import { initializeGameEngine, setCurrentScene, getCurrentScene } from './core/engine.js'
 import { setupInput } from './core/input.js'
 import { MenuScene } from './scenes/menuScene.js'
+import { t, loadLanguage } from '../core/localization/localizationManager.js';
 
 // Create container for our game
 document.querySelector('#app').innerHTML = `

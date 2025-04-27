@@ -1,5 +1,7 @@
 import { setCurrentScene } from '../core/engine.js';
 import { GameScene } from './gameScene.js';
+import { t, loadLanguage } from '../core/localization/localizationManager.js';
+
 
 export class MenuScene {
     constructor() {
@@ -109,7 +111,7 @@ export class MenuScene {
             
             // Shadow
             ctx.fillStyle = '#000000';
-            ctx.fillText('ANT HILL INVASION', this.width / 2 + 4, this.height / 4 + this.titleBounce + 4);
+            ctx.fillText(t('gameTitle'), this.width / 2 + 4, this.height / 4 + this.titleBounce + 4);
             
             // Gradient for title
             const gradient = ctx.createLinearGradient(
