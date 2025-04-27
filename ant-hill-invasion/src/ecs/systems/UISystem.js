@@ -161,7 +161,7 @@ export class UISystem extends System {
         this.ctx.font = '12px "Press Start 2P", monospace';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
-        this.ctx.fillText(t(TEXT_KEYS.START), 105, 30);
+        this.ctx.fillText(t(TEXT_KEYS.START_WAVE), 105, 30);
     }
 
     _drawShop() {

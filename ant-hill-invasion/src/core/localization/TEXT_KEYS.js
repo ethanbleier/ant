@@ -3,11 +3,11 @@ const TEXT_KEYS ={
 
     GAME_TITLE: "gameTitle",
     SUBTITLE: 'subTitle',
-    PLAY: 'play',
+    TOWER_DEFENSE_BUTTON:"play",
     LIVES: 'lives',
     WAVES: 'waves',
-    DEFENDERS: 'defenders',
-    TOWER_DEFENSE_BUTTON:"play",
-    START:"start"
+
+    DEFENDERS: 'defenders', //gameScene shop header
+    START_WAVE:"start" //gameScene wave button
 }
 export {TEXT_KEYS}
