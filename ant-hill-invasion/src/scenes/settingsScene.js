@@ -46,7 +46,8 @@ export class SettingsScene {
             height: smallButtonHeight,
             text: "EN",
             action: 'en',
-            hovered: false
+            hovered: false,
+            localized: false
         });
         //spanish button
         this.buttons.push({
@@ -56,6 +57,8 @@ export class SettingsScene {
             height: smallButtonHeight,
             text: "ES",
             action: 'es',
+            hovered: false,
+            localized: false
         });
         //idk button
         this.buttons.push({
@@ -65,49 +68,56 @@ export class SettingsScene {
             height: smallButtonHeight,
             text: "IDK",
             action: 'idk',
-            hovered: false
+            hovered: false,
+            localized: false
         });
         //accessiblity 2
         this.buttons.push({
             x: (this.width - buttonWidth) / 2,
-            y: (this.height / 2 + 50) + buttonSpacing + buttonHeight,
+            y: (this.height / 2 + 50) + smallButtonHeight + buttonSpacing,
             width: buttonWidth,
             height: buttonHeight,
-            text: t(TEXT_KEYS.SAVE_GAME),
+            text: "accessibility2",
             action: 'accessibilty2',
-            hovered: false
+            hovered: false,
+            localized: false //todo true when we make something
         });
         //accessiblity 3
         this.buttons.push({
             x: (this.width - buttonWidth) / 2,
-            y: (this.height / 2 + 50) + buttonSpacing + buttonHeight,
+            y: (this.height / 2 + 50) + (smallButtonHeight * 2) + (buttonSpacing * 2),
             width: buttonWidth,
             height: buttonHeight,
-            text: t(TEXT_KEYS.SAVE_GAME),
+            text: "accessibility3",
             action: 'accessibilty3',
-            hovered: false
+            hovered: false,
+            localized: false //todo true when we make something
         });
         //save button
         this.buttons.push({
             x: (this.width - buttonWidth) / 2,
             //should be at bottom adjacent to exit
-            y: (this.height / 2 + 50) + buttonSpacing + buttonHeight,
+            y: (this.height / 2 + 50) + (smallButtonHeight * 3) + (buttonSpacing * 3),
             width: buttonWidth,
             height: buttonHeight,
             text: t(TEXT_KEYS.SAVE_GAME),
             action: 'save',
-            hovered: false
+            hovered: false,
+            localized: true,
+            textKey:TEXT_KEYS.SAVE_GAME
         });
         //exit button
         this.buttons.push({
             x: ((this.width - buttonWidth) / 2) +buttonSpacing+ buttonWidth ,
             //should be at bottom adjacent to save
-            y: (this.height / 2 + 50) + buttonSpacing + buttonHeight,
+            y:  (this.height / 2 + 50) + (smallButtonHeight * 3) + (buttonSpacing * 3),
             width: buttonWidth,
             height: buttonHeight,
             text: t(TEXT_KEYS.EXIT_MENU),
             action: 'exit',
-            hovered: false
+            hovered: false,
+            localized: true,
+            textKey:TEXT_KEYS.EXIT_MENU
         });
 
     }
@@ -292,7 +302,7 @@ export class SettingsScene {
     /**
      * Handle click events
      */
-    onClick(event) {
+    async onClick(event) {
         const rect = this.canvas.getBoundingClientRect();
         const mouseX = event.clientX - rect.left;
         const mouseY = event.clientY - rect.top;
@@ -308,10 +318,15 @@ export class SettingsScene {
                     case 'en':
                         //call localizationManager and change language to english
                         console.log("Hi");
+                        await loadLanguage('en');
+                        this.updateButtons();
+
                         break;
                     case 'es':
                         //call localizationManager and change language to english
                         console.log("Hola");
+                        await loadLanguage('es');
+                        this.updateButtons();
                         break;
                     case 'idk':
                         //call localizationManager and change language to english
@@ -329,6 +344,14 @@ export class SettingsScene {
                         // optional: handle unknown actions
                         break;
                 }
+            }
+        }
+    }
+
+    updateButtons(){
+        for(let i =0; i<this.buttons.length;i++){
+            if(this.buttons[i].localized){
+                this.buttons[i].text= t(this.buttons[i].textKey)
             }
         }
     }
