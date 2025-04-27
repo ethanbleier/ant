@@ -1,5 +1,8 @@
 import { System } from '../System.js';
 import { eventBus } from '../../core/EventBus.js';
+import { TEXT_KEYS } from '../../core/localization/TEXT_KEYS.js';
+import { t } from '../../core/localization/localizationManager.js';
+
 
 export class UISystem extends System {
     // Needs scene for dimensions/context, but gets state via events
@@ -120,8 +123,8 @@ export class UISystem extends System {
         
         // Use local state
         this.ctx.fillText(`$${this.currentMoney}`, 170, 30); 
-        this.ctx.fillText(`Lives: ${this.currentLives}`, 300, 30); 
-        this.ctx.fillText(`Wave: ${this.currentWave}`, 500, 30);
+        this.ctx.fillText(`${t(TEXT_KEYS.LIVES)}: ${this.currentLives}`, 300, 30); 
+        this.ctx.fillText(`${t(TEXT_KEYS.WAVES)}: ${this.currentWave}`, 500, 30);
         
         // Pass local pause state
         this._drawPauseButton(this.isPaused); 
@@ -158,7 +161,7 @@ export class UISystem extends System {
         this.ctx.font = '12px "Press Start 2P", monospace';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
-        this.ctx.fillText('START', 105, 30);
+        this.ctx.fillText(t(TEXT_KEYS.START), 105, 30);
     }
 
     _drawShop() {
@@ -177,7 +180,7 @@ export class UISystem extends System {
         this.ctx.fillStyle = '#FFFFFF';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'top';
-        this.ctx.fillText('DEFENDERS', width / 2, height - shopHeight + 5);
+        this.ctx.fillText(t(TEXT_KEYS.DEFENDERS), width / 2, height - shopHeight + 5);
         
         // Draw shop items
         const itemWidth = width / shopItems.length;

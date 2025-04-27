@@ -4,6 +4,8 @@
     "play":"DEFENSA DE LA TORRE",
     "lives":"vidas",
     "waves":"ondas",
-    "defenders":"defensores"
+    "defenders":"DEFENSORES",
+    "start": "COMENZAR"
+    
     
 }
