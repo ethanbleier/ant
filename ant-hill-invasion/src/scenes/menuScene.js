@@ -1,6 +1,7 @@
 import { setCurrentScene } from '../core/engine.js';
 import { GameScene } from './gameScene.js';
 import { t, loadLanguage } from '../core/localization/localizationManager.js';
+import { TEXT_KEYS } from '../core/localization/TEXT_KEYS.js'; //consistency for languages 
 
 
 export class MenuScene {
@@ -46,7 +47,7 @@ export class MenuScene {
             y: this.height / 2 + 50,
             width: buttonWidth,
             height: buttonHeight,
-            text: 'TOWER DEFENSE',
+            text: t(TEXT_KEYS.TOWER_DEFENSE_BUTTON),
             action: 'tower-defense',
             hovered: false
         });
@@ -111,7 +112,7 @@ export class MenuScene {
             
             // Shadow
             ctx.fillStyle = '#000000';
-            ctx.fillText(t('gameTitle'), this.width / 2 + 4, this.height / 4 + this.titleBounce + 4);
+            ctx.fillText(t(TEXT_KEYS.GAME_TITLE), this.width / 2 + 4, this.height / 4 + this.titleBounce + 4);
             
             // Gradient for title
             const gradient = ctx.createLinearGradient(
@@ -125,12 +126,12 @@ export class MenuScene {
             gradient.addColorStop(1, '#FF0000');
             
             ctx.fillStyle = gradient;
-            ctx.fillText('ANT HILL INVASION', this.width / 2, this.height / 4 + this.titleBounce);
+            ctx.fillText(t(TEXT_KEYS.GAME_TITLE), this.width / 2, this.height / 4 + this.titleBounce);
             
             // Add subtitle
             ctx.font = 'bold 20px "Press Start 2P", monospace, Arial';
             ctx.fillStyle = '#FFFFFF';
-            ctx.fillText('DEFEND YOUR COLONY', this.width / 2, this.height / 4 + 60);
+            ctx.fillText(t(TEXT_KEYS.SUBTITLE), this.width / 2, this.height / 4 + 60);
         }
         
         // Draw 8-bit ant icon
