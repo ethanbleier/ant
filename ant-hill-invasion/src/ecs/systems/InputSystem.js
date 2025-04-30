@@ -1,12 +1,7 @@
 import { System } from '../System.js';
-import { Velocity } from '../components/Velocity.js';
-import { Position } from '../components/Position.js';
-import { PlayerControlled } from '../components/PlayerControlled.js';
 import { eventBus } from '../../core/EventBus.js';
-// Assuming core input helper exists - we use event listeners mainly now
-// import { isKeyDown } from '../../core/input.js'; 
 
-const PLAYER_SPEED = 200; // Pixels per second for free play mode
+const PLAYER_SPEED = 200; // pixels per second for free play mode
 
 export class InputSystem extends System {
     constructor(entityManager, scene, canvas) {
@@ -15,8 +10,11 @@ export class InputSystem extends System {
         this.canvas = canvas;
         this.mouseX = 0;
         this.mouseY = 0;
-        this.isMouseDown = false;
-        this.draggingDefenderInfo = null; // Local state for dragging
+        this.draggingDefender = null; // Information about the defender being dragged
+        
+        // Handle all input events
+        canvas.addEventListener('click', this.handleClick.bind(this));
+        canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
 
         // Track key states for polling
         this.keysPressed = {
@@ -27,37 +25,34 @@ export class InputSystem extends System {
         };
 
         // Bind event handlers
-        this._handleMouseDown = this._onMouseDown.bind(this);
-        this._handleMouseMove = this._onMouseMove.bind(this);
-        this._handleMouseUp = this._onMouseUp.bind(this);
         this._handleKeyDown = this._onKeyDown.bind(this);
         this._handleKeyUp = this._onKeyUp.bind(this); // Added keyup handler
 
-        // Need to listen for pause state changes to update internal logic if needed
-        // (e.g., maybe disable certain inputs when paused)
+        // Track relevant game state locally
         this.isPaused = false;
+        this.isWaveInProgress = false;
+
         this.unsubscribePause = eventBus.subscribe('pauseToggled', (pausedState) => {
             this.isPaused = pausedState;
+        });
+        this.unsubscribeWave = eventBus.subscribe('waveChanged', (waveData) => {
+            this.isWaveInProgress = waveData.inProgress;
         });
 
         this.attachListeners();
     }
 
     attachListeners() {
-        this.canvas.addEventListener('mousedown', this._handleMouseDown);
-        this.canvas.addEventListener('mousemove', this._handleMouseMove);
-        this.canvas.addEventListener('mouseup', this._handleMouseUp);
         window.addEventListener('keydown', this._handleKeyDown);
         window.addEventListener('keyup', this._handleKeyUp); // Added keyup listener
     }
 
     cleanup() {
-        this.canvas.removeEventListener('mousedown', this._handleMouseDown);
-        this.canvas.removeEventListener('mousemove', this._handleMouseMove);
-        this.canvas.removeEventListener('mouseup', this._handleMouseUp);
-        window.removeEventListener('keydown', this._handleKeyDown);
-        window.removeEventListener('keyup', this._handleKeyUp); // Remove keyup listener
+        // Remove event listeners
+        this.canvas.removeEventListener('click', this.handleClick.bind(this));
+        this.canvas.removeEventListener('mousemove', this.handleMouseMove.bind(this));
         if(this.unsubscribePause) this.unsubscribePause(); // Unsubscribe from pause event
+        if(this.unsubscribeWave) this.unsubscribeWave();   // Unsubscribe from wave event
         console.log("InputSystem listeners removed.");
     }
 
@@ -69,82 +64,165 @@ export class InputSystem extends System {
         };
     }
 
-    _onMouseDown(event) {
-        this.isMouseDown = true;
-        const { x, y } = this._getMousePos(event);
-        this.mouseX = x;
-        this.mouseY = y;
+    handleClick(event) {
+        // Get mouse position relative to the canvas
+        const rect = this.canvas.getBoundingClientRect();
+        
+        // Fix the scaling calculation to be more precise
+        // Ensure pixel-perfect scaling based on DPI and canvas dimensions
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        
+        // Apply scaling with proper rounding to prevent floating point errors
+        const x = Math.round((event.clientX - rect.left) * scaleX);
+        const y = Math.round((event.clientY - rect.top) * scaleY);
 
-        // Always check for pause button click first, regardless of pause state
-        if (this._isPointInPauseButton(x, y)) {
-            eventBus.publish('togglePause'); // Publish pause toggle request
-            return; // Don't process other clicks if pause button was clicked
+        // --- Button layout constants (should match UISystem ideally, or be derived) ---
+        const buttonSize = 40;
+        const buttonPadding = 15; // Padding between left buttons
+        const playPauseButtonX = 10;
+        const autoSkipButtonX = playPauseButtonX + buttonSize + buttonPadding;
+        const topBarY = 10;
+
+        // 1. Check Combined Play/Pause/Start Button
+        if (x >= playPauseButtonX && x <= playPauseButtonX + buttonSize &&
+            y >= topBarY && y <= topBarY + buttonSize) {
+            if (!this.isWaveInProgress) {
+                console.log("Input: Start Wave Requested");
+                eventBus.publish('startWaveRequested');
+            } else {
+                console.log("Input: Toggle Pause Requested");
+                eventBus.publish('togglePause');
+            }
+            return; // Click handled
         }
 
-        // Only process shop/start clicks if in tower-defense mode AND not paused
-        if (this.scene.gameMode === 'tower-defense' && !this.isPaused) { 
-             if (y > this.scene.height - this.scene.shopHeight) {
-                 // Clicked in shop
-                 const itemWidth = this.scene.width / this.scene.shopItems.length;
-                 const itemIndex = Math.floor(x / itemWidth);
-                
-                 if (itemIndex >= 0 && itemIndex < this.scene.shopItems.length) {
-                     const selectedShopItem = this.scene.shopItems[itemIndex];
-                     // Check affordability via event
-                     eventBus.publish('checkAffordable', {
-                         amount: selectedShopItem.cost,
-                         callback: (canAfford) => {
-                             if (canAfford) {
-                                 this.draggingDefenderInfo = selectedShopItem; // Start drag locally
-                                 eventBus.publish('defenderDragStarted', this.draggingDefenderInfo);
-                             } else {
-                                 console.log("Cannot afford - Drag not started.");
-                                 this.draggingDefenderInfo = null;
-                             }
-                         }
-                     });
-                 }
-             } else {
-                 // Clicked in game area (but not pause button, checked above)
-                 if (this._isPointInStartButton(x, y)) { 
-                     // Assume button is only shown when wave not in progress (handled by UISystem)
-                     eventBus.publish('startWaveRequested'); // Publish start wave request
-                 }
-                 // Other potential game area clicks could go here (e.g., selecting a defender)
-             }
-        } 
-        // No mouse down for free play currently
+        // 2. Check Auto-Skip Button
+        if (x >= autoSkipButtonX && x <= autoSkipButtonX + buttonSize &&
+            y >= topBarY && y <= topBarY + buttonSize) {
+            console.log("Input: Toggle Auto-Skip Requested");
+            eventBus.publish('toggleAutoSkipRequested');
+            return; // Click handled
+        }
+
+        // --- Dynamic Speed Button Click Detection ---
+        const speedButtonWidth = 40;
+        // NOTE: Speed padding might differ from left button padding
+        const speedButtonPadding = 10; 
+        const speedControlsStartX = this.canvas.width - (3 * speedButtonWidth + 2 * speedButtonPadding);
+
+        // Define button areas dynamically (relative to speedControlsStartX)
+        const button1x_EndX = speedControlsStartX + speedButtonWidth;
+        const button2x_StartX = button1x_EndX + speedButtonPadding;
+        const button2x_EndX = button2x_StartX + speedButtonWidth;
+        const button4x_StartX = button2x_EndX + speedButtonPadding;
+        const button4x_EndX = button4x_StartX + speedButtonWidth;
+
+        if (y >= topBarY && y <= topBarY + buttonSize) { // Y check remains the same (top bar)
+            // 1x speed button
+            if (x >= speedControlsStartX && x < button1x_EndX) {
+                eventBus.publish('speedChanged', 1);
+                return;
+            }
+            // 2x speed button
+            if (x >= button2x_StartX && x < button2x_EndX) {
+                eventBus.publish('speedChanged', 2);
+                return;
+            }
+            // 4x speed button
+            if (x >= button4x_StartX && x < button4x_EndX) {
+                eventBus.publish('speedChanged', 4);
+                return;
+            }
+        }
+        // --- End Dynamic Speed Button Click Detection ---
+
+        // Check if clicking in the shop area
+        const shopHeight = this.scene.shopHeight;
+        if (y >= this.canvas.height - shopHeight) {
+            this.handleShopClick(x, y);
+            return;
+        }
+
+        // If dragging a defender, attempt to place it
+        if (this.draggingDefender) {
+            eventBus.publish('placeDefenderRequested', {
+                x: x,
+                y: y,
+                typeData: this.draggingDefender
+            });
+            this.draggingDefender = null;
+            eventBus.publish('defenderDragEnded');
+        }
     }
 
-    _onMouseMove(event) {
-        const { x, y } = this._getMousePos(event);
-        this.mouseX = x;
-        this.mouseY = y;
-        // Publish mouse move event for UI drag preview
-        if (this.draggingDefenderInfo) {
-             eventBus.publish('mouseMoved', { x, y });
+    handleShopClick(x, y) {
+        // Get shop layout details from the scene/UISystem drawing logic
+        const shopItems = this.scene.shopItems;
+        const shopHeight = this.scene.shopHeight;
+        const width = this.canvas.width;
+        const height = this.canvas.height;
+
+        // --- Replicate layout logic from UISystem._drawShop ---
+        const historyWidth = Math.floor(width * 0.22); // Match UISystem calculation
+        const shopMainWidth = width - historyWidth;    // Match UISystem calculation
+        const padding = 8; // Match UISystem padding
+        const itemCount = shopItems.length;
+        const itemsPerRow = Math.min(itemCount, 5); // Match UISystem row limit
+        const rows = Math.ceil(itemCount / itemsPerRow);
+        const itemWidth = Math.floor((shopMainWidth - (padding * (itemsPerRow + 1))) / itemsPerRow);
+        const itemHeight = Math.floor((shopHeight - 35) / rows); // Match UISystem height calculation (30px top offset + 5px title/separator)
+        // --- End layout replication ---
+
+        // Find the clicked item by checking bounds
+        for (let i = 0; i < itemCount; i++) {
+            const item = shopItems[i];
+            const row = Math.floor(i / itemsPerRow);
+            const col = i % itemsPerRow;
+
+            // Calculate item's top-left corner coordinates (matching UISystem._drawShop)
+            const itemX = padding + col * (itemWidth + padding);
+            const itemY = height - shopHeight + 30 + row * (itemHeight + padding);
+
+            // Check if the click coordinates (x, y) fall within this item's bounds
+            if (x >= itemX && x <= itemX + itemWidth &&
+                y >= itemY && y <= itemY + itemHeight) 
+            {
+                const selectedItem = shopItems[i];
+                // Check if affordable before starting drag (optional, but good UX)
+                eventBus.publish('checkAffordable', { 
+                    amount: selectedItem.cost, 
+                    callback: (canAfford) => {
+                        if (canAfford) {
+                            this.draggingDefender = selectedItem;
+                            console.log(`Input: Started dragging ${selectedItem.type}`);
+                            eventBus.publish('defenderDragStarted', selectedItem);
+                        } else {
+                            console.log(`Input: Cannot afford ${selectedItem.type}, cost: ${selectedItem.cost}`);
+                            // Optionally provide visual feedback for unaffordable click
+                        }
+                    }
+                });
+                return; // Exit loop once item is found and processed
+            }
         }
+        
+        // If no item was matched (e.g., clicked padding), do nothing
+        console.log("Input: Clicked in shop area, but missed an item.");
     }
 
-    _onMouseUp(event) {
-        this.isMouseDown = false;
-        const { x, y } = this._getMousePos(event);
-        this.mouseX = x;
-        this.mouseY = y;
-
-        if (this.draggingDefenderInfo) {
-             // Publish place request if releasing in game area
-             if (y < this.scene.height - this.scene.shopHeight) {
-                 eventBus.publish('placeDefenderRequested', { 
-                     typeData: this.draggingDefenderInfo, // Pass the shop item data
-                     x: x, 
-                     y: y 
-                 });
-             }
-             // End drag regardless
-             eventBus.publish('defenderDragEnded');
-             this.draggingDefenderInfo = null;
-        }
+    handleMouseMove(event) {
+        // Update mouse position with the same precision as handleClick
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        
+        // Apply same rounding to ensure consistent coordinates with click handling
+        this.mouseX = Math.round((event.clientX - rect.left) * scaleX);
+        this.mouseY = Math.round((event.clientY - rect.top) * scaleY);
+        
+        // Publish mouse position for other systems
+        eventBus.publish('mouseMoved', { x: this.mouseX, y: this.mouseY });
     }
 
     _onKeyDown(event) {
@@ -161,73 +239,17 @@ export class InputSystem extends System {
                 event.preventDefault(); // Prevent potential browser shortcuts
                 eventBus.publish('togglePause');
             }
-        } else if (this.scene.gameMode === 'free-play') {
-             if (event.key === 'Escape') {
-                 // TODO: Logic to return to menu scene?
-                 console.log("Escape pressed in free play");
-                 // Optionally publish an event to trigger menu transition
-                 // eventBus.publish('requestReturnToMenu'); 
-             }
         }
     }
     
     _onKeyUp(event) {
-        // Track relevant key releases
         if (event.key in this.keysPressed) {
             this.keysPressed[event.key] = false;
             event.preventDefault();
         }
     }
 
-    _isPointInPauseButton(x, y) {
-        return x >= 10 && x <= 50 && y >= 10 && y <= 50;
-    }
-    
-    _isPointInStartButton(x, y) {
-        return x >= 60 && x <= 150 && y >= 10 && y <= 50;
-    }
-
     update(deltaTime) {
-        // Handle Free Play movement based on polled key states
-        if (this.scene.gameMode === 'free-play' && !this.scene.isPaused) {
-            const players = this.entityManager.queryEntities(['PlayerControlled', 'Velocity', 'Position']);
-            if (players.length > 0) {
-                const playerEntity = players[0]; // Assuming single player
-                const velocity = playerEntity.getComponent('Velocity');
-                const position = playerEntity.getComponent('Position');
-                // Renderable needed for width/height in bounds check
-                const renderable = playerEntity.getComponent('Renderable'); 
-                
-                let targetDx = 0;
-                let targetDy = 0;
-
-                if (this.keysPressed.ArrowUp) targetDy = -1;
-                if (this.keysPressed.ArrowDown) targetDy = 1;
-                if (this.keysPressed.ArrowLeft) targetDx = -1;
-                if (this.keysPressed.ArrowRight) targetDx = 1;
-
-                // Normalize diagonal movement
-                if (targetDx !== 0 && targetDy !== 0) {
-                    const length = Math.sqrt(targetDx * targetDx + targetDy * targetDy);
-                    targetDx = (targetDx / length);
-                    targetDy = (targetDy / length);
-                }
-
-                velocity.dx = targetDx * PLAYER_SPEED;
-                velocity.dy = targetDy * PLAYER_SPEED;
-                
-                // Basic Bounds Checking (integrates with MovementSystem)
-                // Predict next position slightly to prevent getting stuck at edge
-                const nextX = position.x + velocity.dx * deltaTime;
-                const nextY = position.y + velocity.dy * deltaTime;
-                const halfWidth = renderable ? renderable.width / 2 : 0;
-                const halfHeight = renderable ? renderable.height / 2 : 0;
-                
-                if (nextX - halfWidth < 0) velocity.dx = Math.max(0, velocity.dx);
-                if (nextX + halfWidth > this.scene.width) velocity.dx = Math.min(0, velocity.dx);
-                if (nextY - halfHeight < 0) velocity.dy = Math.max(0, velocity.dy);
-                if (nextY + halfHeight > this.scene.height) velocity.dy = Math.min(0, velocity.dy);
-            }
-        }
+        // we removed free play mode
     }
 } 

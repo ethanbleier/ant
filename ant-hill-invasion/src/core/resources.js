@@ -45,11 +45,14 @@ export function loadResources() {
 function loadImages(onResourceLoaded) {
     const imagesToLoad = [
         // Define game images here - Adjust URLs to match your project!
-        { name: 'defenderSprite', url: '/assets/models/defender_ant.png' }, 
+        { name: 'defenderSprite', url: '/assets/models/defender_ant.png' },
+        { name: 'gladiatorAntSprite', url: '/assets/models/gladiator_ant.png' },
+        { name: 'sniperAntSprite', url: '/assets/models/sniper_ant.png' },
         { name: 'fireAntSprite', url: '/assets/models/fire_ant.png' },     
         { name: 'leafCutterAntSprite', url: '/assets/models/leafcutter_ant.png' },
-        { name: 'queenAntSprite', url: '/assets/models/queen_ant.png' }, // Placeholder for Queen
-        // Add other necessary images
+        { name: 'tankAntSprite', url: '/assets/models/tank_ant.png' },
+        { name: 'fastAntSprite', url: '/assets/models/speed_ant.png' },
+        { name: 'queenAntSprite', url: '/assets/models/queen_ant.png' },
     ];
     
     // Update total resource count

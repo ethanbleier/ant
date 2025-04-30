@@ -65,7 +65,51 @@
   "waves": [
     { "enemies": [{ "type": "fireAnt", "count": 10, "spawnDelayMs": 1000 }] },
     { "enemies": [{ "type": "fireAnt", "count": 15, "spawnDelayMs": 800 }, { "type": "leafCutterAnt", "count": 5, "spawnDelayMs": 2000 }] },
-    { "enemies": [{ "type": "fireAnt", "count": 20, "spawnDelayMs": 600 }, { "type": "leafCutterAnt", "count": 10, "spawnDelayMs": 1500 }] }
+    { "enemies": [{ "type": "fireAnt", "count": 20, "spawnDelayMs": 600 }, { "type": "leafCutterAnt", "count": 10, "spawnDelayMs": 1500 }] },
+    {
+      "enemies": [
+        { "type": "fireAnt", "count": 25, "spawnDelayMs": 500 }
+      ]
+    },
+    {
+      "enemies": [
+        { "type": "leafCutterAnt", "count": 15, "spawnDelayMs": 1200 },
+        { "type": "fastAnt", "count": 5, "spawnDelayMs": 800 }
+      ]
+    },
+    {
+      "enemies": [
+        { "type": "fireAnt", "count": 20, "spawnDelayMs": 400 },
+        { "type": "fastAnt", "count": 10, "spawnDelayMs": 600 }
+      ]
+    },
+    {
+      "enemies": [
+        { "type": "leafCutterAnt", "count": 20, "spawnDelayMs": 1000 },
+        { "type": "tankAnt", "count": 3, "spawnDelayMs": 3000 }
+      ]
+    },
+    {
+      "enemies": [
+        { "type": "fireAnt", "count": 15, "spawnDelayMs": 300 },
+        { "type": "fastAnt", "count": 15, "spawnDelayMs": 500 },
+        { "type": "tankAnt", "count": 5, "spawnDelayMs": 2500 }
+      ]
+    },
+    {
+      "enemies": [
+        { "type": "fastAnt", "count": 25, "spawnDelayMs": 400 },
+        { "type": "tankAnt", "count": 8, "spawnDelayMs": 2000 }
+      ]
+    },
+    {
+      "enemies": [
+        { "type": "fireAnt", "count": 30, "spawnDelayMs": 300 },
+        { "type": "leafCutterAnt", "count": 15, "spawnDelayMs": 800 },
+        { "type": "fastAnt", "count": 10, "spawnDelayMs": 400 },
+        { "type": "tankAnt", "count": 10, "spawnDelayMs": 1800 }
+      ]
+    }
   ],
   "initialResources": {
     "money": 100,

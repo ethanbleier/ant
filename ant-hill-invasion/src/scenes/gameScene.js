@@ -1,5 +1,3 @@
-import { isKeyDown } from '../core/input.js';
-import { getImage } from '../core/resources.js';
 import { EntityManager } from '../ecs/EntityManager.js';
 import { MovementSystem } from '../ecs/systems/MovementSystem.js';
 import { RenderSystem } from '../ecs/systems/RenderSystem.js';
@@ -18,10 +16,6 @@ import { loadLevelData } from '../core/levelLoader.js';
 import { Position, Velocity, Renderable, Health, Collider, Defender } from '../ecs/components/index.js';
 import { PathFollower } from '../ecs/components/PathFollower.js';
 import { Enemy } from '../ecs/components/Enemy.js';
-import { PlayerControlled } from '../ecs/components/PlayerControlled.js';
-import { Obstacle } from '../ecs/components/Obstacle.js';
-import { CollidingWith } from '../ecs/components/CollidingWith.js';
-// TODO: Import PlayerControlled, AI, etc.
 
 export class GameScene {
     constructor() {
@@ -44,28 +38,57 @@ export class GameScene {
         this.mouseX = 0; 
         this.mouseY = 0;
         
-        // Local pause state synchronized via events
+        // local pause state synchronized via events
         this.isPaused = false; 
+        
+        // the new game speed multiplier (1 = normal, 2 = 2x, 4 = 4x)
+        this.gameSpeed = 1;
 
         this.shopItems = [
-            { type: 'worker', cost: 20, damage: 5, range: 100, speed: 1, color: '#3D2817' },
-            { type: 'soldier', cost: 50, damage: 15, range: 150, speed: 0.8, color: '#000000' },
-            { type: 'sniper', cost: 100, damage: 30, range: 250, speed: 0.5, color: '#654321' }
+            // defender prices with clear naming and consistent properties (balanced as of 4/30/2025)
+            { 
+                type: 'worker', 
+                cost: 20, 
+                damage: 15, 
+                range: 100, 
+                speed: 0.5, 
+                color: '#3D2817',
+                spriteName: 'defenderSprite'
+            },
+            { 
+                type: 'soldier', 
+                cost: 50, 
+                damage: 15,
+                range: 150, 
+                speed: 0.8, 
+                color: '#000000',
+                spriteName: 'gladiatorAntSprite'
+            },
+            { 
+                type: 'sniper', 
+                cost: 100, 
+                damage: 30, 
+                range: 250, 
+                speed: 0.5, 
+                color: '#654321',
+                spriteName: 'sniperAntSprite'
+            }
         ];
         
         this.shopHeight = 80;
 
-        // Scene subscriptions
+        // scene subscriptions
         this.unsubscribePlaceDefender = null;
         this.unsubscribeSpawnSingleEnemy = null;
-        this.unsubscribePauseToggle = null; // Add subscription for pause state
+        this.unsubscribePauseToggle = null; 
+        this.unsubscribeSpeedChange = null;
     }
 
     /**
-     * Initialize the game scene
-     * @param {HTMLCanvasElement} canvas - The canvas element
-     * @param {CanvasRenderingContext2D} ctx - The canvas context
-     * @param {string} levelId - The ID of the level to load
+     * Initialize game scene
+     * @param {HTMLCanvasElement} canvas - canvas element
+     * @param {CanvasRenderingContext2D} ctx - canvas context
+     * @param {string} levelId - level id
      */
     async initialize(canvas, ctx, levelId) {
         this.canvas = canvas;
@@ -74,12 +97,24 @@ export class GameScene {
         this.height = canvas.height;
         this.entityManager = new EntityManager();
 
-        // Load level data FIRST
+        // load level data FIRST
         try {
             this.levelData = await loadLevelData(levelId);
             if (!this.levelData) throw new Error('Level data is null after loading.');
             this.cellSize = this.levelData.grid.cellSize; // Update cell size from level data
-            console.log(`GameScene initialized with level: ${levelId}, cell size: ${this.cellSize}`);
+            
+            // calculate proper canvas dimensions based on grid size
+            const gridWidth = this.levelData.grid.cols * this.cellSize;
+            const gridHeight = this.levelData.grid.rows * this.cellSize + this.shopHeight;
+            const statsBarHeight = 60; // height of the stats bar at the top
+            
+            // update canvas size to fit the grid exactly
+            this.canvas.width = gridWidth;
+            this.canvas.height = gridHeight + statsBarHeight;
+            this.width = this.canvas.width;
+            this.height = this.canvas.height;
+            
+            console.log(`GameScene initialized with level: ${levelId}, cell size: ${this.cellSize}, canvas: ${this.width}x${this.height}`);
         } catch (error) {
             console.error("FATAL: Failed to initialize GameScene due to level loading error:", error);
             // Handle error appropriately (e.g., show an error message, load a default level)
@@ -122,18 +157,17 @@ export class GameScene {
             }
         });
 
-        // Subscribe to pause state changes
+        // subscribe to pause state changes
         this.unsubscribePauseToggle = eventBus.subscribe('pauseToggled', (pausedState) => {
             this.isPaused = pausedState;
             console.log(`GameScene pause state updated: ${this.isPaused}`);
         });
-
-        // No need for gameMode specific init if TD is the only mode using levels
-        // if (this.gameMode === 'tower-defense') {
-        //     this.initializeTowerDefense(); 
-        // } else {
-        //     this.initializeFreePlay();
-        // }
+        
+        // subscribe to game speed changes
+        this.unsubscribeSpeedChange = eventBus.subscribe('speedChanged', (speedFactor) => {
+            this.gameSpeed = speedFactor;
+            console.log(`GameScene speed updated: ${this.gameSpeed}x`);
+        });
     }
     
     /**
@@ -156,15 +190,15 @@ export class GameScene {
         // TODO: Get enemy properties based on enemyType from a definition registry/config
         // Example properties (replace with actual data lookup)
         let enemyProps = { 
-            speed: 50, 
-            health: 100, 
-            reward: 10, 
+            speed: 25, 
+            health: 75, 
+            reward: 5, 
             sprite: 'fireAntSprite', 
             color: '#FF0000' // Red for fire ants
         };
         if (enemyType === 'leafCutterAnt') {
             enemyProps = { 
-                speed: 40, 
+                speed: 35, 
                 health: 150, 
                 reward: 15, 
                 sprite: 'leafCutterAntSprite', 
@@ -200,12 +234,15 @@ export class GameScene {
             return;
         }
         
+        // Ensure we have correct defenderType with consistent cost
+        const cost = defenderType?.cost || 0;
+        
         // Use checkAffordable with a callback
         eventBus.publish('checkAffordable', { 
-            amount: defenderType.cost, 
+            amount: cost, 
             callback: (canAfford) => {
                 if (!canAfford) {
-                    console.log("Cannot afford defender.");
+                    console.log(`Cannot afford defender. Cost: ${cost}, type: ${defenderType?.type}`);
                     return; 
                 }
 
@@ -216,22 +253,36 @@ export class GameScene {
                 }
 
                 // Placement is valid and affordable, proceed
-                const gridX = Math.floor(x / this.cellSize) * this.cellSize;
-                const gridY = Math.floor(y / this.cellSize) * this.cellSize;
-                const centerX = gridX + this.cellSize / 2;
-                const centerY = gridY + this.cellSize / 2;
+                // Convert to grid coordinates with integer math to avoid floating point issues
+                const gridCol = Math.floor(x / this.cellSize);
+                const gridRow = Math.floor(y / this.cellSize);
+                
+                // Calculate precise center of cell to ensure consistency
+                const centerX = gridCol * this.cellSize + this.cellSize / 2;
+                const centerY = gridRow * this.cellSize + this.cellSize / 2;
         
+                // create defender entity
                 const defenderEntity = this.entityManager.createEntity();
                 this.entityManager.addComponent(defenderEntity.id, new Position(centerX, centerY));
-                this.entityManager.addComponent(defenderEntity.id, new Velocity(0, 0)); 
-                // TODO: Use defender specific sprite if available
-                this.entityManager.addComponent(defenderEntity.id, new Renderable('defenderSprite', this.cellSize, this.cellSize, 1, 1, defenderType.color || '#0000FF')); 
+                this.entityManager.addComponent(defenderEntity.id, new Velocity(0, 0));
+                this.entityManager.addComponent(defenderEntity.id, new Renderable(defenderType.spriteName, this.cellSize, this.cellSize, 1, 1, defenderType.color || '#0000FF')); 
                 this.entityManager.addComponent(defenderEntity.id, new Health(100, 100)); // TODO: Use defender specific health?
                 this.entityManager.addComponent(defenderEntity.id, new Collider(this.cellSize, this.cellSize));
-                this.entityManager.addComponent(defenderEntity.id, new Defender( defenderType.type, defenderType.damage, defenderType.range, defenderType.speed, 0, null ));
+                this.entityManager.addComponent(defenderEntity.id, new Defender(defenderType.type, defenderType.damage, defenderType.range, defenderType.speed, 0, null));
 
-                eventBus.publish('spendMoney', defenderType.cost);
-                console.log(`Placed defender ${defenderEntity.id} (${defenderType.type}) at grid (${Math.floor(x/this.cellSize)}, ${Math.floor(y/this.cellSize)})`);
+                // Spend the correct amount
+                eventBus.publish('spendMoney', cost);
+                
+                // Publish defender purchase for UI tracking
+                eventBus.publish('defenderPurchased', {
+                    type: defenderType.type,
+                    color: defenderType.color,
+                    cost: cost,
+                    spriteName: defenderType.spriteName,
+                    position: { x: centerX, y: centerY }
+                });
+                
+                console.log(`Placed defender ${defenderEntity.id} (${defenderType.type}) at grid (${gridCol}, ${gridRow}), cost: ${cost}`);
             }
         });
     }
@@ -292,8 +343,11 @@ export class GameScene {
      * @returns {object|null} The defender entity or null
      */
     getDefenderAt(x, y) {
-        const gridX = Math.floor(x / this.cellSize) * this.cellSize;
-        const gridY = Math.floor(y / this.cellSize) * this.cellSize;
+        // Use consistent grid calculation with placeDefender method
+        const gridCol = Math.floor(x / this.cellSize);
+        const gridRow = Math.floor(y / this.cellSize);
+        const centerX = gridCol * this.cellSize + this.cellSize / 2;
+        const centerY = gridRow * this.cellSize + this.cellSize / 2;
         const tolerance = 1; // Tolerance for position check
 
         // Query entities with Position and Defender components
@@ -304,8 +358,8 @@ export class GameScene {
         for (const entity of defenderEntities) {
             const position = entity.getComponent('Position');
             // Check if entity's center position matches the grid cell's center
-            if (Math.abs(position.x - (gridX + this.cellSize / 2)) < tolerance &&
-                Math.abs(position.y - (gridY + this.cellSize / 2)) < tolerance) {
+            if (Math.abs(position.x - centerX) < tolerance &&
+                Math.abs(position.y - centerY) < tolerance) {
                 return entity; // Return the found entity
             }
         }
@@ -318,6 +372,9 @@ export class GameScene {
      */
     update() {
         const deltaTime = 1 / 60; // TODO: Get actual delta time
+        
+        // Apply game speed factor to deltaTime for game logic
+        const scaledDeltaTime = deltaTime * this.gameSpeed;
 
         // Use local isPaused flag synced by events
         if (!this.isPaused) { // Now uses the synchronized isPaused property
@@ -328,7 +385,7 @@ export class GameScene {
                     !(system instanceof RenderSystem) && 
                     !(system instanceof UISystem)) 
                 {
-                    system.update(deltaTime);
+                    system.update(scaledDeltaTime);
                 }
             }
         }
@@ -336,7 +393,7 @@ export class GameScene {
         // Always update Rendering and UI Systems regardless of pause state
         this.systems.forEach(system => {
             if (system instanceof MapRenderingSystem || system instanceof RenderSystem || system instanceof UISystem) {
-                system.update(deltaTime);
+                system.update(deltaTime); // These systems use unscaled deltaTime
             }
         });
     }
@@ -360,22 +417,28 @@ export class GameScene {
      * Handle window resize
      */
     onResize(width, height) {
-        this.width = width;
-        this.height = height;
+        // only update if there is levelData
+        if (!this.levelData) return;
         
-        if (this.gameMode === 'tower-defense') {
-             // If path calculation based on dimensions is needed, it should use levelData grid info
-            // For fixed-size grid levels, resizing might not affect gameplay logic, only viewport.
-            console.warn("onResize: Ensure rendering and UI adapt correctly. Gameplay logic assumes fixed grid from levelData.");
-        } else {
-            // Reposition player
-            // this.player.x = Math.min(this.player.x, this.width - this.player.width);
-            // this.player.y = Math.min(this.player.y, this.height - this.player.height);
-        }
+        // calculate proper canvas dimensions based on grid size
+        const gridWidth = this.levelData.grid.cols * this.cellSize;
+        const gridHeight = this.levelData.grid.rows * this.cellSize + this.shopHeight;
+        const statsBarHeight = 60; // height of the stats bar at the top
+        
+        // update canvas size to fit the grid exactly
+        this.canvas.width = gridWidth;
+        this.canvas.height = gridHeight + statsBarHeight;
+        this.width = this.canvas.width;
+        this.height = this.canvas.height;
+        
+        console.log(`Canvas resized to: ${this.width}x${this.height}`);
+        
+        // publish event to notify systems about canvas resize
+        eventBus.publish('canvasResized', { width: this.width, height: this.height });
     }
 
     /**
-     * Clean up scene resources
+     * clean up scene resources
      */
     cleanup() {
         console.log("Cleaning up GameScene and Systems...");
@@ -383,6 +446,7 @@ export class GameScene {
         if (this.unsubscribePlaceDefender) this.unsubscribePlaceDefender();
         if (this.unsubscribeSpawnSingleEnemy) this.unsubscribeSpawnSingleEnemy();
         if (this.unsubscribePauseToggle) this.unsubscribePauseToggle(); // Unsubscribe pause listener
+        if (this.unsubscribeSpeedChange) this.unsubscribeSpeedChange(); // Unsubscribe speed change listener
         
         // Clean up systems
         this.systems.forEach(system => {
