@@ -2,6 +2,7 @@ import './style.css'
 import { initializeGameEngine, setCurrentScene, getCurrentScene } from './core/engine.js'
 import { setupInput } from './core/input.js'
 import { MenuScene } from './scenes/menuScene.js'
+import { t, loadLanguage } from './core/localization/localizationManager.js';
 
 // create game container
 document.querySelector('#app').innerHTML = `
@@ -39,9 +40,19 @@ function handleResize() {
 window.addEventListener('resize', handleResize);
 
 // Load the menu scene as the starting scene
-const menuScene = new MenuScene()
-menuScene.initialize(canvas, ctx)
-setCurrentScene(menuScene)
+async function startGame() {
+  //todo await userData to load their saved language
+  await loadLanguage('en');  //english is default for now
+
+  const menuScene = new MenuScene();
+  menuScene.initialize(canvas, ctx);
+  setCurrentScene(menuScene);
+
+  handleResize();
+}
+
+// Call it
+startGame();
 
 // Initial resize to set correct size on load
 handleResize();
