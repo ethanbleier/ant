@@ -119,4 +119,4 @@ npm run preview
     *   **`core/`**: Foundational code like the `EventBus.js` which enables different parts of the game to communicate without being directly coupled (e.g., signaling a 'moneyChanged' event).
 *   **`ant-hill-invasion/public/levels/`**: This directory contains `.json` files that define the parameters for each game level, such as starting money (`"money": ...`), enemy waves, and map layout.
 *   **`ant-hill-invasion/public/`**: Files here are typically served directly by the web server. This often includes the main `index.html`, CSS files, images, and the level data files.
-*   **`start.sh`**: A shell script likely used to simplify the process of building the game or starting a local development server.
+*   **`start.sh`**: A shell script used to simplify the process of building the game or starting a local development server.
