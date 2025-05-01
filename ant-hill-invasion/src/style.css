@@ -109,3 +109,54 @@ html, body {
     height: 32px;
   }
 }
+
+/* …everything you pasted above … */
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  .loading-overlay { font-size: 12px; }
+  .loading-spinner { width: 32px; height: 32px; }
+}
+
+/* ---------- Auth overlay ---------- */
+.auth-overlay{
+  position:fixed; inset:0;
+  display:flex; justify-content:center; align-items:center;
+  background:rgba(0,0,0,0.85);
+  z-index:9999;
+  font-family:'Press Start 2P',monospace;
+}
+
+.auth-card{
+  background:#111;
+  border:4px solid #fff;
+  padding:32px;
+  width:340px;
+  text-align:center;
+  display:flex; flex-direction:column; gap:14px;
+  animation: pop 200ms ease-out;
+@keyframes pop{ from{ transform:scale(0.7); opacity:0;} }
+
+}
+
+.auth-card h2{color:#ffcc00;font-size:16px}
+
+.auth-card input{
+  width:100%; padding:6px 8px; margin-bottom:6px;
+  background:#000; color:#fff; border:2px solid #555;
+  font-family:inherit; font-size:12px;
+}
+
+.auth-card button{
+  background:#8b0000; color:#fff;
+  border:2px solid #fff; padding:8px 12px;
+  cursor:pointer; font-family:inherit; font-size:12px;
+}
+.auth-card button:hover{background:#aa0000}
+
+.auth-card hr{
+  border:none; border-top:2px solid #333; margin:8px 0;
+}
+
+.auth-card a{color:#66c2ff; text-decoration:none}
+.auth-card a:hover{text-decoration:underline}

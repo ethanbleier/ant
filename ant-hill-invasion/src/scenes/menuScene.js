@@ -3,7 +3,7 @@ import { GameScene } from './gameScene.js';
 import { t, loadLanguage } from '../core/localization/localizationManager.js';
 import { TEXT_KEYS } from '../core/localization/TEXT_KEYS.js'; //consistency for languages 
 import { SettingsScene } from './settingsScene.js';
-
+import { AuthScene }     from './authScene.js';   
 
 export class MenuScene {
     constructor() {
@@ -38,7 +38,7 @@ export class MenuScene {
         canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
         
         // Create buttons
-        const buttonWidth = 240;
+        const buttonWidth = 300;
         const buttonHeight = 60;
         const buttonSpacing = 20;
         
@@ -62,6 +62,16 @@ export class MenuScene {
             action: 'settings',
             hovered: false
         });
+        //Sign up button
+        this.buttons.push({
+            x: (this.width - buttonWidth) / 2,
+            y: (this.height / 2 + 50) + 2 * (buttonSpacing + buttonHeight),
+            width:  buttonWidth,
+            height: buttonHeight,
+            text:   'SIGN UP / LOG IN',
+            action: 'auth',
+            hovered:false
+          });
     }
     
     /**
@@ -226,9 +236,9 @@ export class MenuScene {
      * Handle mouse movement to track for hovering
      */
     onMouseMove(event) {
-        const rect = this.canvas.getBoundingClientRect();
-        this.mouseX = event.clientX - rect.left;
-        this.mouseY = event.clientY - rect.top;
+        const rect   = this.canvas.getBoundingClientRect();
+ const mouseX = (event.clientX - rect.left) * (this.canvas.width  / rect.width);
+  const mouseY = (event.clientY - rect.top)  * (this.canvas.height / rect.height);
     }
     
     /**
@@ -252,6 +262,9 @@ export class MenuScene {
                 if(button.action ==='settings'){
                     this.openSettingsPage();
                 }
+                if (button.action === 'auth'){
+                    this.openAuthPage(); 
+                }
             }
         }
     }
@@ -264,14 +277,20 @@ export class MenuScene {
         this.height = height;
         
         // Reposition buttons
-        const buttonWidth = 240;
+        const buttonWidth = 300;
         const buttonHeight = 60;
         const buttonSpacing = 20;
         
         if (this.buttons.length >= 1) {
             this.buttons[0].x = (width - buttonWidth) / 2;
             this.buttons[0].y = height / 2 + 50;
-        }
+          
+            this.buttons[1].x = this.buttons[0].x;
+            this.buttons[1].y = this.buttons[0].y + buttonSpacing + buttonHeight;
+          
+            this.buttons[2].x = this.buttons[0].x;
+            this.buttons[2].y = this.buttons[1].y + buttonSpacing + buttonHeight;
+          }
     }
 
     /**
@@ -321,6 +340,13 @@ export class MenuScene {
             console.error("Failed to open Settings Page: ",error);
         }
     }
+
+    openAuthPage() {
+        this.cleanup();
+        const auth = new AuthScene();
+        auth.initialize(this.canvas, this.ctx);
+        setCurrentScene(auth);
+      }
 
     /**
      * Clean up scene resources

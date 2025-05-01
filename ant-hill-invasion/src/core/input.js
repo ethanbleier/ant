@@ -114,6 +114,7 @@ function handleMouseUp(event) {
 
 function handleMouseMove(event) {
     const canvas = event.target;
+    if (!canvas) return;                           // <-- guard fixes it
     const rect = canvas.getBoundingClientRect();
     
     // Use actual canvas pixel coordinates (not normalized coordinates)
