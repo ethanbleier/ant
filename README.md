@@ -115,7 +115,7 @@ npm run preview
     *   **`ecs/`**: Implements the Entity Component System pattern, a common architectural pattern in game development.
         *   `components/`: Define the data associated with game objects (entities). For example, an enemy might have `Health`, `Position`, and `Enemy` components. Money rewards are defined in `Enemy.js`.
         *   `systems/`: Contain the logic that operates on entities possessing specific components. `GameStateSystem.js` manages the player's money, `CombatSystem.js` handles fighting and awarding money, and `UISystem.js` displays the money and purchase options.
-    *   **`scenes/`**: Manages different parts of the game experience. `gameScene.js` likely orchestrates the main gameplay loop, including defining defender costs and handling defender placement logic (checking affordability).
+    *   **`scenes/`**: Manages different parts of the game experience. `gameScene.js` orchestrates the main gameplay loop, including defining defender costs and handling defender placement logic (checking affordability).
     *   **`core/`**: Foundational code like the `EventBus.js` which enables different parts of the game to communicate without being directly coupled (e.g., signaling a 'moneyChanged' event).
 *   **`ant-hill-invasion/public/levels/`**: This directory contains `.json` files that define the parameters for each game level, such as starting money (`"money": ...`), enemy waves, and map layout.
 *   **`ant-hill-invasion/public/`**: Files here are typically served directly by the web server. This often includes the main `index.html`, CSS files, images, and the level data files.
