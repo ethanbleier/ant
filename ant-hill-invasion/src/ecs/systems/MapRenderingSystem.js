@@ -36,7 +36,7 @@ export class MapRenderingSystem extends System {
      */
      loadQueenAntImage() {
         this.queenAntImage = new Image();
-        this.queenAntImage.src = 'assets/models/queen_ant.png'; // Ensure this path is correct
+        this.queenAntImage.src = 'assets/models/queen_ant.png';
         this.queenAntImage.onload = () => {
             this.isQueenAntImageLoaded = true;
             console.log("MapRenderingSystem: Queen Ant image loaded successfully.");
@@ -143,8 +143,11 @@ export class MapRenderingSystem extends System {
             console.error("MapRenderingSystem: Cannot draw anthill, missing levelData.anthillPos.");
             return;
         }
-        const anthillRow = this.levelData.anthillPos.row;
-        const anthillCol = this.levelData.anthillPos.col;
+        // Apply offsets: move 2 rows down, 2 columns left
+        const rowOffset = 2;
+        const colOffset = -2; 
+        const anthillRow = this.levelData.anthillPos.row + rowOffset;
+        const anthillCol = this.levelData.anthillPos.col + colOffset;
         const cellSize = this.cellSize;
 
         // Calculate top-left pixel coordinates for the 3x3 area

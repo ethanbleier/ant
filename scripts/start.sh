@@ -9,6 +9,9 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Print the total lines of code in the codebase
+echo "📊 Codebase Line Count: $(git ls-files | grep -v -e '^$' | xargs ls -1 2>/dev/null | xargs wc -l 2>/dev/null | tail -n 1 || echo 'N/A')" 
+
 # Install dependencies if node_modules doesn't exist
 if [ ! -d "node_modules" ]; then
   echo "⏳ node_modules not found. Running npm install..."

@@ -4,20 +4,20 @@ import { setupInput } from './core/input.js'
 import { MenuScene } from './scenes/menuScene.js'
 import { t, loadLanguage } from './core/localization/localizationManager.js';
 
-// Create container for our game
+// create game container
 document.querySelector('#app').innerHTML = `
   <div id="game-container">
     <canvas id="game-canvas"></canvas>
   </div>
 `
 
-// Initialize the game engine
+// game engine
 const { canvas, ctx } = initializeGameEngine()
 
-// Set up user input handlers
+// user input handlers
 setupInput()
 
-// --- Add Resize Handler ---
+// --- Resize Handler ---
 function handleResize() {
   // Get the container size (or window size if container isn't styled)
   const container = document.getElementById('game-container');
@@ -29,11 +29,7 @@ function handleResize() {
   canvas.width = newWidth;
   canvas.height = newHeight;
 
-  // Optional: If using CSS to scale canvas, update style too (might not be needed)
-  // canvas.style.width = `${newWidth}px`;
-  // canvas.style.height = `${newHeight}px`;
-
-  // Notify the current scene
+  // Notify current scene
   const currentScene = getCurrentScene();
   if (currentScene && typeof currentScene.onResize === 'function') {
     currentScene.onResize(newWidth, newHeight);
@@ -42,7 +38,6 @@ function handleResize() {
 
 // Add event listener
 window.addEventListener('resize', handleResize);
-// --- End Resize Handler ---
 
 // Load the menu scene as the starting scene
 async function startGame() {
