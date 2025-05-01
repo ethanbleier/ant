@@ -75,6 +75,9 @@ npm install
 # Run the development server
 npm run dev
 
+# Run the Node Server (while in server)
+node src/server.js
+
 # Build for production
 npm run build
 
