@@ -67,6 +67,8 @@ Select **"Tower Defense"** mode from the main menu.
 # Clone the repository
 cd ant-hill-invasion
 
+# Copy the .env in slack
+
 # Install dependencies
 npm install
 
