@@ -11,6 +11,10 @@ export class SettingsScene {
         this.height = 0;
         this.buttons = [];
 
+        //exit stuff-enter
+        this.originalLanguage= t(TEXT_KEYS.LANGUAGE);
+        //new
+
         // Animation properties
         this.titleBounce = 0;
         this.titleBounceDir = 1;
@@ -385,6 +389,8 @@ export class SettingsScene {
                         break;
                     case 'exit':
                         console.log("Bye Bye");
+                        await loadLanguage(t(this.originalLanguage));
+                        this.updateButtons();
                         //leave to menuScene w/out saving, but keep changes (thats how it works rn)
                         this.openMenuScene();
                         break;

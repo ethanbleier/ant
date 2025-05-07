@@ -1,6 +1,7 @@
 // to prevent typos when calling the langauge json
 //space every 5 words cus im blind
 const TEXT_KEYS ={
+    LANGUAGE:"language",
 
     GAME_TITLE: "gameTitle",
     SUBTITLE: 'subTitle',
