@@ -14,6 +14,8 @@ async function loadLanguage(langCode) {
         }
         localizationData = await response.json();
         currentLang = langCode;
+
+        localStorage.setItem('lang', langCode);
         console.log(`Language switched to: ${currentLang}`);
     } catch (error) {
         console.error('Error loading language:', error);

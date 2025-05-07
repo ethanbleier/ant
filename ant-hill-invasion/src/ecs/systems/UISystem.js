@@ -1,6 +1,8 @@
 import { System } from '../System.js';
 import { eventBus } from '../../core/EventBus.js';
 import { drawImage } from '../../core/resources.js'; // Import drawImage
+import { TEXT_KEYS } from '../../core/localization/TEXT_KEYS.js';
+import { t } from '../../core/localization/localizationManager.js';
 
 export class UISystem extends System {
     // Needs scene for dimensions/context, but gets state via events
@@ -234,8 +236,8 @@ export class UISystem extends System {
         const availableCenterSpace = speedControlsStartX - moneyDisplayEndX;
         const centerPointX = moneyDisplayEndX + availableCenterSpace / 2;
 
-        const livesText = `Lives: ${this.currentLives}`;
-        const waveText = `Wave: ${this.currentWave}`;
+        const livesText = t(TEXT_KEYS.LIVES)+`: ${this.currentLives}`;
+        const waveText = t(TEXT_KEYS.WAVE)+`: ${this.currentWave}`;
         const combinedText = `${livesText}    ${waveText}`; // Add spacing between them
 
         this.ctx.font = '16px "Press Start 2P", monospace';
@@ -370,16 +372,16 @@ export class UISystem extends System {
         this.ctx.fillStyle = '#FF5500'; // orange shadow
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'top';
-        this.ctx.fillText('DEFENDERS', Math.floor(shopMainWidth / 2) + 2, height - shopHeight + 7);
+        this.ctx.fillText(t(TEXT_KEYS.DEFENDERS), Math.floor(shopMainWidth / 2) + 2, height - shopHeight + 7);
         // main text
         this.ctx.fillStyle = '#FFFF00'; // yellow text
-        this.ctx.fillText('DEFENDERS', Math.floor(shopMainWidth / 2), height - shopHeight + 5);
+        this.ctx.fillText(t(TEXT_KEYS.DEFENDERS), Math.floor(shopMainWidth / 2), height - shopHeight + 5);
         
         // draw purchase history title
         this.ctx.font = '12px "Press Start 2P", monospace';
         this.ctx.fillStyle = '#00FFFF'; // cyan for history title
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('PURCHASES', shopMainWidth + Math.floor(historyWidth / 2), height - shopHeight + 5);
+        this.ctx.fillText(t(TEXT_KEYS.PURCHACES), shopMainWidth + Math.floor(historyWidth / 2), height - shopHeight + 5);
         
         // draw pixelated separator under titles (horizontal line)
         this.ctx.fillStyle = '#666677'; // subtle separator color
@@ -514,7 +516,7 @@ export class UISystem extends System {
             this.ctx.fillStyle = '#888888';
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
-            this.ctx.fillText('NO RECENT PURCHASES', x + Math.floor(width / 2), y + Math.floor(height / 2));
+            this.ctx.fillText(t(TEXT_KEYS.NO_REC_PURCHASES), x + Math.floor(width / 2), y + Math.floor(height / 2));
             return;
         }
         
@@ -560,7 +562,7 @@ export class UISystem extends System {
             // display wave purchased
             this.ctx.fillStyle = '#FFFF00'; // yellow for wave info
             this.ctx.textAlign = 'right';
-            this.ctx.fillText(`WAVE ${purchase.wave}`, x + width - padding - 8, itemY + 14);
+            this.ctx.fillText(t(TEXT_KEYS.WAVE)+` ${purchase.wave}`, x + width - padding - 8, itemY + 14);
         }
     }
 
@@ -651,11 +653,11 @@ export class UISystem extends System {
 
         // shadow effect for game over text
         this.ctx.fillStyle = '#550000'; // dark red shadow
-        this.ctx.fillText('GAME OVER', centerX + 4, centerY + 4);
+        this.ctx.fillText(t(TEXT_KEYS.GAME_OVER), centerX + 4, centerY + 4);
 
         // main game over text
         this.ctx.fillStyle = '#FF0000'; // bright red text
-        this.ctx.fillText('GAME OVER', centerX, centerY);
+        this.ctx.fillText(t(TEXT_KEYS.GAME_OVER), centerX, centerY);
     }
     
     _drawGameWinPopup() {
@@ -680,11 +682,11 @@ export class UISystem extends System {
 
         // shadow effect for game win text (using a dark green/blue shadow)
         this.ctx.fillStyle = '#005500'; // dark green shadow
-        this.ctx.fillText('YOU WIN!', centerX + 4, centerY + 4);
+        this.ctx.fillText(t(TEXT_KEYS.YOU_WIN), centerX + 4, centerY + 4);
 
         // main game win text (using a bright green/cyan color)
         this.ctx.fillStyle = '#00FF00'; // bright green text
-        this.ctx.fillText('YOU WIN!', centerX, centerY);
+        this.ctx.fillText(t(TEXT_KEYS.YOU_WIN), centerX, centerY);
 
         // --- star rating logic ---
         let stars = 0;
