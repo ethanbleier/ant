@@ -386,6 +386,7 @@ export class SettingsScene {
                     case 'save':
                         //do back end stuff to save player settings
                         console.log("SAVING...");
+                        this.originalLanguage=t(TEXT_KEYS.LANGUAGE);
                         break;
                     case 'exit':
                         console.log("Bye Bye");
