@@ -72,7 +72,7 @@ export class SettingsScene {
             y: (this.height / 2 + 50),
             width: smallButtonWidth,
             height: smallButtonHeight,
-            text: "IDK",
+            text: "LOLCAT",
             action: 'lolcat',
             hovered: false,
             localized: false
