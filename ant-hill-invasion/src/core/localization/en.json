@@ -11,6 +11,14 @@
     "settingsSubtitle":"ACCESSIBILITY?",
     "save":"SAVE",
     
-    "exit":"EXIT"
+    "exit":"EXIT",
+    "purchases":"PURCHASES",
+    "noRecPurchases":"NO RECENT PURCHASES",
+    "wave":"WAVE",
+
+    "gameOver":"GAME OVER",
+    "youWin":"YOU WIN!",
+    "signUp":"SIGN UP",
+    "logIn": "LOG IN"
 
 }

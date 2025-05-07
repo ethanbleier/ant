@@ -69,7 +69,7 @@ export class SettingsScene {
             width: smallButtonWidth,
             height: smallButtonHeight,
             text: "IDK",
-            action: 'idk',
+            action: 'lolcat',
             hovered: false,
             localized: false
         });
@@ -79,7 +79,7 @@ export class SettingsScene {
             y: (this.height / 2 + 50) + smallButtonHeight + buttonSpacing,
             width: buttonWidth,
             height: buttonHeight,
-            text: "accessibility2",
+            text: "TBA",
             action: 'accessibilty2',
             hovered: false,
             localized: false //todo true when we make something
@@ -90,7 +90,7 @@ export class SettingsScene {
             y: (this.height / 2 + 50) + (smallButtonHeight * 2) + (buttonSpacing * 2),
             width: buttonWidth,
             height: buttonHeight,
-            text: "accessibility3",
+            text: "TBA",
             action: 'accessibilty3',
             hovered: false,
             localized: false //todo true when we make something
@@ -121,8 +121,51 @@ export class SettingsScene {
             localized: true,
             textKey:TEXT_KEYS.EXIT_MENU
         });
+        this.layoutButtons()
 
     }
+    layoutButtons() {
+        const buttonWidth = 240;
+        const buttonHeight = 60;
+        const buttonSpacing = 20;
+        const smallButtonWidth = 120;
+        const startY = this.height / 2 + 50;
+    
+        if (this.buttons.length < 7) return;
+    
+        // First 3 language buttons
+        for (let i = 0; i < 3; i++) {
+            this.buttons[i].width = smallButtonWidth;
+            this.buttons[i].height = buttonHeight;
+            this.buttons[i].x = (this.width - (3 * smallButtonWidth)) / 2 + i * smallButtonWidth;
+            this.buttons[i].y = startY;
+        }
+    
+        // Next 2 accessibility buttons (single column)
+        for (let i = 3; i <= 4; i++) {
+            this.buttons[i].width = buttonWidth;
+            this.buttons[i].height = buttonHeight;
+            this.buttons[i].x = (this.width - buttonWidth) / 2;
+            this.buttons[i].y = startY + (i - 2) * (buttonHeight + buttonSpacing);
+        }
+    
+        // Save and Exit side by side
+        this.buttons[5].width = buttonWidth;
+        this.buttons[5].height = buttonHeight;
+        this.buttons[5].x = (this.width - 2 * buttonWidth - buttonSpacing) / 2;
+        this.buttons[5].y = startY + 3 * (buttonHeight + buttonSpacing);
+    
+        this.buttons[6].width = buttonWidth;
+        this.buttons[6].height = buttonHeight;
+        this.buttons[6].x = this.buttons[5].x + buttonWidth + buttonSpacing;
+        this.buttons[6].y = this.buttons[5].y;
+    }
+    onResize(width, height) {
+        this.width = width;
+        this.height = height;
+        this.layoutButtons(); 
+    }
+    
 
     update() {
         this.titleBounce += 0.1 * this.titleBounceDir;
@@ -330,9 +373,11 @@ export class SettingsScene {
                         await loadLanguage('es');
                         this.updateButtons();
                         break;
-                    case 'idk':
+                    case 'lolcat':
                         //call localizationManager and change language to english
                         console.log("kjrbpiureUER");
+                        await loadLanguage('lolcat');
+                        this.updateButtons();
                         break;
                     case 'save':
                         //do back end stuff to save player settings
