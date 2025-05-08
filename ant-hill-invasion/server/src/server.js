@@ -13,7 +13,9 @@ app.use(cookieParser());
 import authRoutes   from './routes/auth.js';
 import saveRoutes   from './routes/save.js';
 import healthRoutes from './routes/health.js';
+import progressRoutes from './routes/progress.js';
 
+app.use('/api', progressRoutes);
 app.use('/api', authRoutes);
 app.use('/api', saveRoutes);
 app.use('/api', healthRoutes);

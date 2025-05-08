@@ -11,6 +11,8 @@ import { CollisionSystem } from '../ecs/systems/CollisionSystem.js';
 import { ProjectileSystem } from '../ecs/systems/ProjectileSystem.js';
 import { eventBus } from '../core/EventBus.js';
 import { loadLevelData } from '../core/levelLoader.js';
+import { api } from '../core/api.js'; 
+
 
 // Components
 import { Position, Velocity, Renderable, Health, Collider, Defender } from '../ecs/components/index.js';
@@ -168,6 +170,55 @@ export class GameScene {
             this.gameSpeed = speedFactor;
             console.log(`GameScene speed updated: ${this.gameSpeed}x`);
         });
+
+        // TEMP SAVE AND EXIT BUTTON //
+
+    // ────── Save & Exit overlay ──────
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'SAVE & EXIT';
+    Object.assign(saveBtn.style, {
+      position: 'fixed',
+      right: '20px',
+      bottom: '20px',
+      zIndex: 9999,
+      padding: '12px 16px',
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '12px',
+      color: '#fff',
+      background: '#880000',
+      border: '4px solid #fff',
+      cursor: 'pointer',
+      letterSpacing: '1px'
+    });
+    document.body.appendChild(saveBtn);
+
+    saveBtn.addEventListener('click', async () => {
+      try {
+        const score = this.entityManager.state?.score ?? 0;
+        const snapshot = {
+          cash : this.entityManager.state?.cash  ?? 0,
+          lives: this.entityManager.state?.lives ?? 10
+        };
+
+        await api('/api/save', {
+          method: 'POST',
+          body  : JSON.stringify({ level: this.levelData.id ?? 1,
+                                   score,
+                                   data : snapshot })
+        });
+        alert('Progress saved! Returning to menu…');
+      } catch (err) {
+        alert('Save failed: ' + err.message);
+      } finally {
+        this.cleanup();
+        saveBtn.remove();
+        const menu = new MenuScene();
+        menu.initialize(this.canvas, this.ctx);
+        setCurrentScene(menu);
+      }
+    });
+    // ────────────────────────────────
+
     }
     
     /**

@@ -1,29 +1,36 @@
 // server/src/routes/save.js
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../prismaClient.js';
 import requireAuth from '../middleware/requireAuth.js';
 
-const prisma = new PrismaClient();
-const router  = Router();
+const router = Router();
 
-/* -----  POST /api/save  ----- */
+/* ──────────  POST /api/save  ──────────
+   Body: { level: 1, score: 250, data: { towers:3, hp:60 } }
+   Upserts by (userId, level) so the player has one row per level.
+──────────────────────────────────────── */
 router.post('/save', requireAuth, async (req, res) => {
-  const { data, score } = req.body;             // expects {data:{…}, score:123}
+  const { level, score, data } = req.body;      // ←  level REQUIRED
+  const userId = req.user.id;                   // set in requireAuth
+
   await prisma.save.upsert({
-    where:  { userId: req.user.sub },
-    update: { data, score },
-    create: { userId: req.user.sub, data, score }
+    where : { userId_level: { userId, level } }, // composite unique key
+    update: { score, data },
+    create: { userId, level, score, data }
   });
+
   res.json({ ok: true });
 });
 
-/* -----  GET /api/load  ----- */
+/* ──────────  GET /api/load  ──────────
+   Returns all saves for the signed-in user, newest first.
+──────────────────────────────────────── */
 router.get('/load', requireAuth, async (req, res) => {
-  const save = await prisma.save.findFirst({
-    where:   { userId: req.user.sub },
-    orderBy: { updatedAt: 'desc' }
+  const saves = await prisma.save.findMany({
+    where   : { userId: req.user.id },
+    orderBy : { updatedAt: 'desc' }
   });
-  res.json(save ?? {});
+  res.json(saves);
 });
 
 export default router;
