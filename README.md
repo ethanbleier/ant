@@ -78,6 +78,9 @@ npm run dev
 # Run the Node Server (while in server)
 node src/server.js
 
+# Pull up database (while in server)
+npx prisma studio
+
 # Build for production
 npm run build
 
