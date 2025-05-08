@@ -2,9 +2,10 @@
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import jwt    from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../prismaClient.js';
 
-const prisma = new PrismaClient();
+
+
 const router = Router();
 const COOKIE_OPTS = { httpOnly: true, sameSite: 'lax' };
 const sign = (user) =>

@@ -7,6 +7,9 @@ export default function requireAuth(req, res, next) {
 
   try {
     req.user = jwt.verify(token, process.env.JWT_SECRET);
+
+    req.user.id = req.user.sub;       
+
     next();
   } catch {
     res.status(401).json({ error: 'Bad token' });
