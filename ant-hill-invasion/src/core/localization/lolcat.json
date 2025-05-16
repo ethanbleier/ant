@@ -1,0 +1,25 @@
+{
+    "language":"lolcat",
+
+    "gameTitle":"ANT HILL INVASHUN",
+    "subTitle": "DEFEND UR COLONY",
+    "play": "TOWR DEFENSE",
+    "lives": "Livez",
+    "waves": "Wavez",
+
+    "defenders": "DEFENDURRZ",
+    "start": "GOEZ",
+    "settings": "OPTCHUNZ",
+    "settingsSubtitle": "ACCESIBIBIBIBBLEZ?",
+    "save": "SAEVZ",
+
+    "exit": "BAI BAI",
+    "purchases":"PURCHASEZ",
+    "noRecPurchases":"NO RESENT PURCHASEZ",
+    "wave":"Wave",
+
+    "gameOver":"GAME OVAR",
+    "youWin":"U WIN!",
+    "signUp":"JOINZ NAO",
+    "logIn":"LET ME INZ"
+}

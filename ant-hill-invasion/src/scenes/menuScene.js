@@ -68,7 +68,7 @@ export class MenuScene {
             y: (this.height / 2 + 50) + 2 * (buttonSpacing + buttonHeight),
             width:  buttonWidth,
             height: buttonHeight,
-            text:   'SIGN UP / LOG IN',
+            text:   t(TEXT_KEYS.SIGN_UP)+'/'+t(TEXT_KEYS.LOG_IN),
             action: 'auth',
             hovered:false
           });

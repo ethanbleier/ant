@@ -1,6 +1,7 @@
 // to prevent typos when calling the langauge json
 //space every 5 words cus im blind
 const TEXT_KEYS ={
+    LANGUAGE:"language",
 
     GAME_TITLE: "gameTitle",
     SUBTITLE: 'subTitle',
@@ -14,6 +15,15 @@ const TEXT_KEYS ={
     SETTINGS_SUBTITLE:'settingsSubtitle',
     SAVE_GAME:'save',
 
-    EXIT_MENU:'exit'
+    EXIT_MENU:'exit',
+    PURCHACES:'purchases',//todo
+    NO_REC_PURCHASES: 'noRecPurchases',//todo
+    WAVE: 'wave',
+    GAME_OVER: 'gameOver',
+
+    YOU_WIN:'youWin',
+    SIGN_UP:"signUp",
+    LOG_IN:"logIn"
+
 }
 export {TEXT_KEYS}

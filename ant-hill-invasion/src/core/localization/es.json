@@ -1,9 +1,11 @@
 {
+    "language":"es",
+
     "gameTitle":"INVASIÓN DEL HORMIGUERO",
     "subTitle":"DEFIENDE TU COLONIA",
     "play":"DEFENSA DE LA TORRE",
-    "lives":"vidas",
-    "waves":"ondas",
+    "lives":"Vidas",
+    "waves":"Ondas",
     
     "defenders":"DEFENSORES",
     "start": "COMENZAR",
@@ -11,7 +13,15 @@
     "settingsSubtitle":"ACCESIBILIDAD",
     "save":"AHORRAR",
     
-    "exit":"SALIDA"
+    "exit":"SALIDA",
+    "purchases": "COMPRAS",
+    "noRecPurchases": "SIN COMPRAS RECIENTES",
+    "wave": "OLA",
+
+    "gameOver": "JUEGO TERMINADO",
+    "youWin": "¡TU GANAS!",
+    "signUp":"INSCRIBIRSE",
+    "logIn":"ACCESO"
     
     
 }
